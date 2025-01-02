@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CryptoDbSS</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="css.css">
+</head>
+<body>
+  
+    <div class="container">
+        <header class="d-flex flex-wrap justify-content-center py-3 mb-4 borderbottom">
+          <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+            <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"></use></svg>
+            <span class="fs-4">Cripto::DB-256::S'Sums: Front Rest API Web</span>
+          </a>
+    
+          <ul class="nav nav-pills">
+            <li class="nav-item"><a href="/" class="nav-link">Transac</a></li>
+            <li class="nav-item"><a href="consul" class="nav-link">Index Balance</a></li>
+            <li class="nav-item"><a href="derivat" class="nav-link">Derive Public</a></li>
+            <li class="nav-item"><a href="bloque" class="nav-link">Block Search</a></li>
+            <li class="nav-item"><a href="info" class="nav-link active" aria-current="page">About</a></li>
+          </ul>
+        </header>
+    
+    </div>
+
+
+
+    <div class="mx-auto" style="max-width: 500px;">
+		<p class="text-wrap" style="word-wrap: break-word;" id="response">
+			
+		This software implements the use of ECDSA Secp256k1 cryptographic 
+		algorithms based on generating signatures and deriving public 
+		keys using a private key, the secret key generates signatures
+		in x509 format and derives the public key in p1363 format to
+		authenticate transactions from the Front-end without the need 
+		to compromise the private key over the network.
+        
+        <br/> <br/>The Back-End is written in C++ and has its own 
+        blockchain binary database model, each transaction is 
+        verified with the signature of the user's public key in 
+        addition to the implementation of data integrity verification 
+        algorithms such as SHA3-256 and sums between previous transactions 
+        to verify that the values are correct.
+        
+		<br/> <br/>This app is scalable by nature due to the design 
+		in the identification of block and transaction type, which allows 
+		adding new features in the future such as smart contracts, internal 
+		tokens or any function that you want and/or wish to add.
+		
+		<br/> <br/>It can be configured in a network with other nodes that 
+		run the app, a unique consensus algorithm was developed for this app 
+		that is based on which ledger node is algebraically closest to the 
+		hash of the last block, this in turn makes it more efficient than 
+		blockchains that require mining, being efficient in energy and 
+		performance.
+		
+		<br/> <br/>This software is property of Steeven Salazar, under the 
+		proper use of third party software licenses.
+		
+		<br/> <br/>The purpose of this app is demonstrative, about the study and
+		development of an app that guarantees authentication security without 
+		compromising the private key in which only the end user
+		makes use of his possession [length.32bytes]
+        
+        
+        <br/> <br/> front-end libs: jsrsasign.
+        <br/> <br/> binary libs: CrowCpp, Crypto++, OpenSSL, Boost, ASIO, libcurl.
+        <br/> <br/> Copyright (C) 2024 Steeven J Salazar.
+        <br/> <br/>Steevenjavier@gmail.com
+    </p>,
+    </div>
+
+    
+
+
+<script src="requestjson.js"></script>
+
+
+
+
+</body>
+</html>

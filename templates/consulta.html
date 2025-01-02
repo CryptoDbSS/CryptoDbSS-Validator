@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>CDB256SS TEST API</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" type="text/css" href="css.css">
+  </head>
+
+  <body>
+
+  <div id="popup" class="popup">
+    <div class="popup-contenido">
+      <h2>Terms of use </h2>
+      <p>This application and its services as well as its use are only for demonstration purposes and testing of the software for its development, no transaction carried out has/nor will have a real value or any type of reserve asset or that supports it,
+         Its use is subject to the author's disclaimer, such as its misuse, failures, etc.</p>
+
+      <div class="row">
+        <div class="col">
+        <label for="checkbox">Do not show this advice again:</label>
+        <input type="checkbox" id="checkbox">
+        </div>
+        <div class="col">
+        <button id="cerrarBtn" class="btn btn-dark bottompopup">Accept</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+      <div class="container">
+          <header class="d-flex flex-wrap justify-content-center py-3 mb-4 borderbottom">
+            <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+              <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"></use></svg>
+              <span class="fs-4">Cripto::DB-256::S'Sums: Front Rest API Web </span>
+            </a>
+      
+            <ul class="nav nav-pills">
+              <li class="nav-item"><a href="/" class="nav-link " aria-current="page">Transac</a></li>
+              <li class="nav-item"><a href="consul" class="nav-link active">Index Balance</a></li>
+              <li class="nav-item"><a href="derivat" class="nav-link">Derive Public</a></li>
+              <li class="nav-item"><a href="bloque" class="nav-link">Block Search</a></li>
+              <li class="nav-item"><a href="info" class="nav-link" aria-current="page">About</a></li>
+            </ul>
+          </header>
+      
+      </div>
+
+
+      <div class="d-flex flex-wrap justify-content-center py-3 mb-4 borderbottom">
+      <form id="myForm" name="myForm">
+              <label for="fname">Index value address </label>
+              <input type="text" id="fname" name="fname">
+              <button type="button" class="btn btn-dark" onclick="balance(this)"><i class="fa fa-cube" aria-hidden="true"></i></button>
+        </form>
+      </div>
+
+      <div class="mx-auto" style="max-width: 500px;">
+        <p class="text-wrap" style="word-wrap: break-word;" id="response"></p>
+      </div>
+
+  <br><br>
+
+  <script src="requestjson.js"></script>
+
+  </body>
+</html>

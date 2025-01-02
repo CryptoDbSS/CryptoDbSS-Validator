@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>CDB256SS TEST API</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="css.css">
+  </head>
+  <body>
+
+    <div id="popup" class="popup">
+      <div class="popup-contenido">
+        <h2>Terminos de uso </h2>
+        <p>Esta aplicacion y sus servicios asi como su uso solo son con propositos demostrativos y pruebas del software para el desarrollo de la misma, ninguna transaccion realizada tiene/ni tendra un valor real o cualquier tipo de activo de reserva o que lo respalde, 
+          su uso esta sujeto a descargo de responsabilidad del autor como podria ser su mal uso, fallos, ect, por parte de 3ros.</p>
+          <div class="row">
+            <div class="col">
+            <label for="checkbox">No volver a mostrar este aviso:</label>
+            <input type="checkbox" id="checkbox">
+            </div>
+            <div class="col">
+            <button id="cerrarBtn" class="btn btn-dark bottompopup">Aceptar</button>
+            </div>
+          </div> 
+      </div>
+    </div>
+
+    <div class="container">
+      <header class="d-flex flex-wrap justify-content-center py-3 mb-4 borderbottom">
+        <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+          <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"></use></svg>
+          <span class="fs-4">Cripto::DB-256::S'Sums: Front Rest API Web</span>
+        </a>
+  
+        <ul class="nav nav-pills">
+          <li class="nav-item"><a href="/" class="nav-link " aria-current="page">Transac</a></li>
+          <li class="nav-item"><a href="consul" class="nav-link ">Index Balance</a></li>
+          <li class="nav-item"><a href="derivat" class="nav-link active">Derive Public</a></li>
+          <li class="nav-item"><a href="bloque" class="nav-link">Block Search</a></li>
+          <li class="nav-item"><a href="info" class="nav-link" aria-current="page">About</a></li>
+        </ul>
+      </header>
+    
+    </div>
+    <div class="d-flex flex-wrap justify-content-center py-3 mb-4 borderbottom">
+      <form id="myForm" name="myForm">
+        <label for="fname">privKey[Length.32Bytes]</label>
+        <input type="text" id="fname" name="fname">
+        <button type="button" class="btn btn-dark" onclick="deripub(this)"><i class="fa fa-superscript" aria-hidden="true"></i></button>
+        <button type="button" class="btn btn-dark" onclick="saveWallet(this)">save wallet <i class="fa fa-download" aria-hidden="true"></i> </button>
+      </form>
+    </div>
+    <div class="d-flex flex-wrap justify-content-center py-3 mb-4 borderbottom">
+      <form id="myForm" name="myForm">
+        <label for="fname">Optional: You can create a 32char string by entering any text in this box, it will implement a sha256 function with the text which will result in a 32char text</label>
+        <br>
+        <input type="text" id="ToSha" name="fname">
+        <button type="button" class="btn btn-dark" onclick="calculateSHA3HashDeriva()"><i class="fa fa-superscript" aria-hidden="true"></i></button>
+      </form>
+    </div>
+    <div class="mx-auto" style="max-width: 500px;">
+      <p class="text-wrap" style="word-wrap: break-word;" id="response">The private key will only be used by your browser to derive and perform cryptographic signatures, it will never be shared between the network or any other person.</p>
+    </div>
+  </body>
+
+  <script src="signer2.js"></script>
+  <script src="requestjson.js"></script>
+</html>
