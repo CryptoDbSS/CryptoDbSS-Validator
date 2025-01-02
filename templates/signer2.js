@@ -7,9 +7,19 @@
     ////////////////////////////////////////////////////////////////
 
 
-    //Special Thanks: Kenji Urushima, Jeff Mott, Cedric Mesnil, Tom Wu, Stefan Thomas, Mike Samuel.
-
-    //el uso/modificacion de este software es permisible siempre que se incluya a los derechos del autor: mostrar derechos de autor, descargo de responsabilidad, inclusion del nombre del autor y proyecto original en derivaciones de este.  
+    /*
+    * Software Name: CryptoDbSS
+    * Copyright (C) 2025 Steeven J Salazar.
+    * License: CryptoDbSS: Software Review and Audit License
+    * 
+    * https://github.com/Steeven512/CryptoDbSS
+    *
+    * IMPORTANT: Before using, compiling or do anything with this software, 
+    * you must read and accept the terms of this License.
+    * 
+    * This software is provided "as is," without warranty of any kind.
+    * For more details, see the LICENSE file.
+    */
 
    
     var serverurl = window.location.origin;

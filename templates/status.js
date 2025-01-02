@@ -1,3 +1,24 @@
+    ////////////////////////////////////////////////////////////////
+    //                                                            //
+    //           Cripto::DB-256::S'Sums  Client Signer            //
+    //                                                            //
+    ////////////////////////////////////////////////////////////////
+
+
+    /*
+    * Software Name: CryptoDbSS
+    * Copyright (C) 2025 Steeven J Salazar.
+    * License: CryptoDbSS: Software Review and Audit License
+    * 
+    * https://github.com/Steeven512/CryptoDbSS
+    *
+    * IMPORTANT: Before using, compiling or do anything with this software, 
+    * you must read and accept the terms of this License.
+    * 
+    * This software is provided "as is," without warranty of any kind.
+    * For more details, see the LICENSE file.
+    */
+
 setInterval(function() {
     fetch(serverurl + '/status', {
       method: 'GET'

@@ -1,7 +1,9 @@
 /*
  * Software Name: CryptoDbSS
- * Copyright (C) 2024 Steeven J Salazar.
+ * Copyright (C) 2025 Steeven J Salazar.
  * License: CryptoDbSS: Software Review and Audit License
+ * 
+ * https://github.com/Steeven512/CryptoDbSS
  *
  * IMPORTANT: Before using, compiling or do anything with this software, 
  * you must read and accept the terms of this License.
@@ -18,13 +20,9 @@ The CryptoDbSS, blockchain-core, consensus, protocols and misc.
 This software is a prototype version, it should only be used for 
 development, testing, study and auditing proporses. 
 
-questions, suggestions or contact : Steevenjavier@gmail.com
-
-
 Third-party dependencies: CrowCpp, Crypto++, OpenSSL, Boost, ASIO, libcurl.
 
-Build on GNU/Linux Debian with: g++ CryptoDbSS.cpp -o ../bin/CryptoDbSS -lpthread -DCROW_ENABLE_SSL -lssl -lcrypto -lcryptopp -DCURL_STATICLIB -lcurl -std=c++17
-
+questions, suggestions or contact : Steevenjavier@gmail.com
 
 */
 
