@@ -36,7 +36,7 @@ transac at the chain.
 
 Third-party dependencies: CrowCpp, Crypto++, OpenSSL, Boost, ASIO, libcurl.
 
-Build on GNU/Linux Debian with: g++ CryptoDbSS.cpp -o ../bin/CryptoDbSS -lpthread -DCROW_ENABLE_SSL -lssl -lcrypto -lcryptopp -DCURL_STATICLIB -lcurl -std=c++17
+Build on GNU/Linux Debian with: src/CryptoDbSS.cpp -o CryptoDbSS -lpthread -DCROW_ENABLE_SSL -lssl -lcrypto -lcryptopp -DCURL_STATICLIB -lcurl -std=c++17
 
 
 
