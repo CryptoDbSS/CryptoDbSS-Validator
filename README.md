@@ -1,5 +1,13 @@
-CryptoDbSS Project, Blockchain core, consensus, protocols and misc.
+## CryptoDbSS Project, Blockchain core, consensus, protocols and misc.
+<p align="center">
+  <img src="https://github.com/Steeven512/CryptoDbSS/blob/main/CryptoDbSSLogo.png" alt="Alt Text" width="250" height="250">
+</p>
+</br>
 
+> [!WARNING]
+> This Software is a prototype version, it should only be used for study, review and audit purposes, please read the license and its terms of use carefully.
+
+</br></br>
 CryproDbSS is a Blockchain Software technology, developing on being faster,
 light and optimized, with secure and scalable design focus on its algorythms, 
 writed on C++ brings perfomance and portability.
@@ -33,14 +41,20 @@ the design of the code provides security algorythms, it's check the binary
 integrity of the entire DB and the sums value of the addresses in each 
 transac at the chain.
 
+### Third-party dependencies: 
+> CrowCpp, Crypto++, OpenSSL, Boost, ASIO, libcurl.
 
-Third-party dependencies: CrowCpp, Crypto++, OpenSSL, Boost, ASIO, libcurl.
-
-Build on GNU/Linux Debian with: src/CryptoDbSS.cpp -o CryptoDbSS -lpthread -DCROW_ENABLE_SSL -lssl -lcrypto -lcryptopp -DCURL_STATICLIB -lcurl -std=c++17
-
+### Build on GNU/Linux Debian with:
+> src/CryptoDbSS.cpp -o CryptoDbSS -lpthread -DCROW_ENABLE_SSL -lssl -lcrypto -lcryptopp -DCURL_STATICLIB -lcurl -std=c++17
 
 
+
+<p align="center">
+  </br>
 questions, suggestions or contact : Steevenjavier@gmail.com
+</br></br>
+ Copyright (C) 2025 Steeven J Salazar.
+</p>
 
 
 
