@@ -47,7 +47,10 @@ transac at the chain.
 ### Build on GNU/Linux Debian with:
 > src/CryptoDbSS.cpp -o CryptoDbSS -lpthread -DCROW_ENABLE_SSL -lssl -lcrypto -lcryptopp -DCURL_STATICLIB -lcurl -std=c++17
 
+# Get more Info And Updates
+Follow the blog [cryptodbss.blogspot.com](https://cryptodbss.blogspot.com/).
 
+#
 
 <p align="center">
   </br>
