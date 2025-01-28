@@ -89,6 +89,7 @@ string dir_feeds = feedToDirset();
 uint feeds_ratio = feedRatioset();
 int timingRound = stoi(timing())+9999;
 uint16_t errorMatchminCount = 0;
+
 vector<string> peersMatchMin;// client node
 
 bool synced=false;
@@ -2099,7 +2100,7 @@ int main(){
     cout<<endl<<"               S.S            ";  
     cout<<endl<<"    Steevenjavier@gmail.com   ";                  
     cout<<endl<<"                              ";                              
-    cout<<endl<<"           CriptoDb256SS   ";                            
+    cout<<endl<<"           CriptoDbSS   ";                            
     cout<<endl;                                                               
     cout<<endl;  
 

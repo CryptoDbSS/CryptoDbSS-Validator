@@ -34,7 +34,7 @@ questions, suggestions or contact : Steevenjavier@gmail.com
 
 string searchlastmoveCkBl2(vector<unsigned char> bl2, array<unsigned char, 64 > &acc,uint primerInit, uint64_t last, uint index){
 
-    cout<<endl<<"slmck2 debug init "<<endl;
+  //  cout<<endl<<"slmck2 debug init "<<endl;
 
     uint64_t rests = 0;
     uint64_t sums = 0;
@@ -80,8 +80,8 @@ string searchlastmoveCkBl2(vector<unsigned char> bl2, array<unsigned char, 64 > 
 
         for(index; index>0 ; index--){ 
 
-            cout<<endl<<"Block build x "<< last;
-            cout<<endl<<"Block transac y["<< index <<"]"<<endl;
+            //cout<<endl<<"Block build x "<< last;
+            //cout<<endl<<"Block transac y["<< index <<"]"<<endl;
 
             result = AccIndexCompare3(bl2,primerInit, last, acc, accB,compressedNull);
 
@@ -91,7 +91,7 @@ string searchlastmoveCkBl2(vector<unsigned char> bl2, array<unsigned char, 64 > 
                 //cout <<endl<<"slm chksums search index result x: "<<last<<"y: "<<index<<" on AccRPoint" << endl;
 
                 if(accB.size()<1){
-                    cout<<endl<<"debug accB.size()<1";
+                    cout<<endl<<"Error searchlastmoveCkBl2 result == 2 accB.size()<1";
                     exit_call();
 
                 }
@@ -132,8 +132,7 @@ string searchlastmoveCkBl2(vector<unsigned char> bl2, array<unsigned char, 64 > 
                         if(accNumberVector==accBsize-1){
                             accNumberVector++;
                             break;
-                            cout<<endl<<"invalid Firm"<<endl;
-                            cout<<endl<<"error searchlastmoveCkBl2 DB Corrupt!, Firm False"<<endl;
+                            cout<<endl<<"Error searchlastmoveCkBl2 Signature Invalid"<<endl;
                             exit_call();
                             return "DB Corrupt!, Firm False";
                         }
@@ -162,7 +161,7 @@ string searchlastmoveCkBl2(vector<unsigned char> bl2, array<unsigned char, 64 > 
                 //cout <<endl<<"slm chksums search index result x: "<<last<<"y: "<<index<<" on AccLPoint" << endl;
 
                 if(accB.size()<1){
-                    cout<<endl<<"debug accB.size()<1";
+                    cout<<endl<<"Error searchlastmoveCkBl2  result == 1 accB.size()<1";
                     exit_call();
                 }
 
@@ -200,8 +199,7 @@ string searchlastmoveCkBl2(vector<unsigned char> bl2, array<unsigned char, 64 > 
                         if(accNumberVector==accBsize-1){
                             accNumberVector++;
                             break;
-                            cout<<endl<<"invalid Firm"<<endl;
-                            cout<<endl<<"error DB Corrupt!, Firm False"<<endl;
+                            cout<<endl<<"Error searchlastmoveCkBl2 Signature invalid"<<endl;
                             return "DB Corrupt!, Firm False";
                         }
                     }else {
@@ -440,18 +438,18 @@ bool checkSumsBalances(vector<unsigned char>bl2,array<unsigned char, 64> accA, u
 
 string searchlastmove(string acctpubk , bool IsAccSync){
 
-    cout<<endl<<"searchlastmove init alg acc: "<<acctpubk<<endl;
+    cout<<endl<<" account indexing algorithm init: "<<acctpubk<<endl;
 
     const uint64_t lastBL = lastbl;
     extern bool Refactorizing;
 
     if(Refactorizing){
-        return "refactorizing new block, try again in a few moment";
+        return "refactorizing new block, try again in a few moments";
     }
 
     if( !HexCheck(acctpubk)){ 
-        cout<<endl<<"invalid chars address  "<<acctpubk<<endl;
-        return "invalid adress characters" ;
+        cout<<endl<<"invalid address format character  "<<acctpubk<<endl;
+        return "invalid address format character" ;
     }
     if( acctpubk.length() == 130 && acctpubk.substr(0,2) == "04"){
         acctpubk= acctpubk.substr(2,128);
@@ -470,15 +468,10 @@ string searchlastmove(string acctpubk , bool IsAccSync){
     array<unsigned char, 64 > acc = accArr( acctpubk);
     string balance;
 
-    //if some call the thread and and other call the thread this will block untin the first finish this section block
+    //If the thread is called and another process calls it again, it will block until the first process finishes this section.
     //////////////////////////////////////////////////////////////////////
 
-    //while(mapIndex[acc].indexing== true){std::this_thread::sleep_for(std::chrono::milliseconds(200));}
-    //while(mapIndex[acc].indexing== true){std::this_thread::sleep_for(std::chrono::milliseconds(200));}
-    
     std::unique_lock<std::mutex> indexinglock(mapIndex[acc].indexingmtx);
-
-
     std::unique_lock<std::mutex> WritingAccSynclock(WritingAccSync);
 
     mapIndex[acc].indexing = true;
@@ -491,8 +484,8 @@ string searchlastmove(string acctpubk , bool IsAccSync){
         auto iter  = AccSync.find(acc);
         if (iter != AccSync.end()){
             if(AccSync[acc].indexed == true){
-                cout<<endl<<"acc indexed cached for transac : "<<acctpubk<<endl;
-                cout<<endl<<"acc indexed cached value : "<<AccSync[acc].value<<endl;
+                cout<<endl<<"indexed acc in cache : "<<acctpubk;
+                cout<<endl<<"value : "<<AccSync[acc].value<<endl;
                 balance = ullToHex(AccSync[acc].value);
                 mapIndex[acc].indexing = false;
                 return balance;
@@ -503,7 +496,8 @@ string searchlastmove(string acctpubk , bool IsAccSync){
     auto iter  = AccSync.find(acc);
     if (iter != AccSync.end()){
         if(AccSync[acc].indexed){ 
-            cout<<endl<<"slm return cache fl"<<endl;
+            cout<<endl<<"indexed acc in cache : "<<endl;
+            cout<<endl<<"value : "<<AccSync[acc].value<<endl;
             balance = ullToHex(AccSync[acc].value);
             mapIndex[acc].indexing = false;
             return balance;
@@ -518,7 +512,7 @@ string searchlastmove(string acctpubk , bool IsAccSync){
                     AccSync[acc].value = mapIndex[acc].balance;
                     AccSync[acc].valueAnt = mapIndex[acc].balance;
                     AccSync[acc].DataCompressIndex = mapIndex[acc].DataCompressIndex;
-                    cout<<endl<<"acc indexed cached for index"<<endl;
+                    cout<<endl<<"indexed acc in cache : "<<endl;
                     balance = ullToHex(mapIndex[acc].balance);
                     AccSync[acc].indexed = true;
                     mapIndex[acc].indexing = false;
@@ -550,16 +544,13 @@ string searchlastmove(string acctpubk , bool IsAccSync){
     }
 
     mapIndex[acc].indexed = false;
-    
-
     WritingAccSynclock.unlock();
 
     
-// End synchrony block section
+// End Sync lock Section
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-    cout<<endl<<"Acc is not indexed";
-    cout<<endl<<"indexing acc in newest operations"<<endl;
+    cout<<endl<<"Searching for a non-indexed account"<<endl;
 
     uint64_t last = lastBL;
     uint qttblks;
@@ -571,8 +562,6 @@ string searchlastmove(string acctpubk , bool IsAccSync){
     bool AccIndexFound = false;
     uint16_t lastcompressPoint;
     vector<string> accB;
-
-    cout<<endl<<"searchlastmove debug fl4 "<<endl;
 
     while (last>=0) {
 
@@ -588,26 +577,15 @@ string searchlastmove(string acctpubk , bool IsAccSync){
 
         array<unsigned char, 64UL>accfeedblreaded = readAddressFeedBl(bl2);
 
-        /*
-        cout<<endl<<"debug bl head search index  readAddressFeedBl(bl2) : ";
-        for(uint8_t i = 0 ; i<64; i++){
-            cout<<byteToHex2(accfeedblreaded[i]);
-        }
-        cout<<endl;
-        for(uint8_t i = 0 ; i<64; i++){
-           cout<< byteToHex2(acc[i]);
-        }
-        */
-
         if( readAddressFeedBl(bl2) == acc ){
 
-            cout<<endl<<"se encontro la cuenta en el bl head"<<endl;
+            cout<<endl<<"account found in the Block Head"<<endl;
 
             WritingAccSynclock.lock();
             
             if(Refactorizing|| lastBL !=lastbl){
                 mapIndex[acc].indexing = false;
-                return "refactorizing new block, try again in a few moment";
+                return "refactorizing new block, try again in a few moments";
             }
 
             mapIndex[acc].balance = readAddressFeedBlBalance(bl2);
@@ -627,7 +605,7 @@ string searchlastmove(string acctpubk , bool IsAccSync){
 
         for(uint16_t a = qttblks; a>=1 ; a--){ 
 
-            cout<<endl<<"slm Block Read N "<< last<< " transac y["<< a <<"]"<<endl;
+          //  cout<<endl<<"slm Block Read N "<< last<< " transac y["<< a <<"]"<<endl;
 
 
             uint8_t result = AccIndexCompare3(bl2,primerInit, last, acc, accB,compressPoint);
@@ -668,15 +646,15 @@ string searchlastmove(string acctpubk , bool IsAccSync){
                     datatransacstring = datatransacstring.substr(0,2)+accB[accNumberVector].substr(0,128)+datatransacstring.substr(130,datatransacstring.length()-130);
                     for (auto &s : datatransacstring){s = toupper(s);}
 
-                    cout<<endl<<"data transac build "<<datatransacstring<<endl<<endl;
+                    //cout<<endl<<"data transac build "<<datatransacstring<<endl<<endl;
 
                     //verify if the signature match with the data transac and acc
                     if(!verifySignature(  datatransacstring, signaturestring, loadPublicKey(datatransacstring.substr(2,128) ))){
                         if(accNumberVector==accBsize-1){
                             accNumberVector++;
                             break;
-                            cout<<endl<<"invalid Firm"<<endl;
-                            cout<<endl<<"error DB Corrupt!, Firm False"<<endl;
+                            cout<<endl<<"Error searchlastmove "+datatransacstring+" signature invalid "+signaturestring<<endl;
+                            cout<<endl<<"error DB Corrupt!, False Signature"<<endl;
                             WritingAccSynclock.lock();
                             mapIndex[acc].indexing = false;
                             return "DB Corrupt!, Firm False";
@@ -699,8 +677,8 @@ string searchlastmove(string acctpubk , bool IsAccSync){
                     AccIndexFound=true;
                 }
 
-                cout<<endl<<"acc R found i: "<< a <<" bl: "<<last<<" bltype "<<to_string(DataTransac[0])<<endl;
-                cout<<endl<<" debug slm sums R "<<to_string(sums)<<" rests "<<to_string(rests)<< " balance read "<<readbalanceFromDatatransacArray(DataTransac, true)<<endl;
+                //cout<<endl<<"acc R found i: "<< a <<" bl: "<<last<<" bltype "<<to_string(DataTransac[0])<<endl;
+                //cout<<endl<<" debug slm sums R "<<to_string(sums)<<" rests "<<to_string(rests)<< " balance read "<<readbalanceFromDatatransacArray(DataTransac, true)<<endl;
 
                 if( DataTransac[0] == 4 || DataTransac[0] == 6){
                     if(readbalanceFromDatatransacArray(DataTransac, true)>readbalanceFromDatatransacArray(DataTransac, true)+sums){
@@ -739,7 +717,8 @@ string searchlastmove(string acctpubk , bool IsAccSync){
                 mapIndex[acc].DataCompressIndex = lastcompressPoint+1 ;
                 mapIndex[acc].indexed = true;
                 mapIndex[acc].indexing = false;
-                cout<<endl<<"debug mapIndex balance "<<to_string(mapIndex[acc].balance)<<endl;
+
+               // cout<<endl<<"debug mapIndex balance "<<to_string(mapIndex[acc].balance)<<endl;
 
                 if(IsAccSync){
                     AccSync[acc].value = mapIndex[acc].balance;
@@ -748,8 +727,6 @@ string searchlastmove(string acctpubk , bool IsAccSync){
                     AccSync[acc].indexed = true;
                 }
                 balance = ullToHex(mapIndex[acc].balance);
-
-                cout<<endl <<" debug error previos prio 2 fl1 "<<endl;
 
                 return balance;
             }
@@ -804,7 +781,7 @@ string searchlastmove(string acctpubk , bool IsAccSync){
                             return "DB Corrupt!, Firm False";
                         }
                     }else {
-                        cout<<endl<<"ckeck firm success";
+                        cout<<endl<<"signature check success";
                         break; 
                     }
 
@@ -815,8 +792,8 @@ string searchlastmove(string acctpubk , bool IsAccSync){
                     continue;
                 }
 
-                cout<<endl<<"acc L found i: "<< a <<" bl: "<<last<<" bltype "<<to_string(DataTransac[0])<<endl;
-                cout<<endl<<" debug slm sums L "<<to_string(sums)<<" rests "<<to_string(rests)<< " balance read "<<readbalanceFromDatatransacArray(DataTransac, false)<<endl;
+               // cout<<endl<<"acc L found i: "<< a <<" bl: "<<last<<" bltype "<<to_string(DataTransac[0])<<endl;
+               // cout<<endl<<" debug slm sums L "<<to_string(sums)<<" rests "<<to_string(rests)<< " balance read "<<readbalanceFromDatatransacArray(DataTransac, false)<<endl;
 
                 if(!AccIndexFound){
                     lastcompressPoint = compressPoint;
@@ -865,7 +842,7 @@ string searchlastmove(string acctpubk , bool IsAccSync){
                 mapIndex[acc].indexed = true;
                 mapIndex[acc].indexing = false;
 
-                cout<<endl<<"debug mapIndex balance "<<to_string(mapIndex[acc].balance)<<endl;
+               // cout<<endl<<"debug mapIndex balance "<<to_string(mapIndex[acc].balance)<<endl;
 
                 if(IsAccSync){
                     AccSync[acc].value = mapIndex[acc].balance;
@@ -874,10 +851,8 @@ string searchlastmove(string acctpubk , bool IsAccSync){
                     AccSync[acc].indexed = true;
                 }
 
-                cout<<endl <<" debug error previos prio 1 fl1 "<<endl;
-
                 balance = ullToHex(mapIndex[acc].balance);
-                cout<<endl<<"searchlastmove end alg 1 acc: "<<acctpubk<<endl;
+
                 return balance;
             }
 

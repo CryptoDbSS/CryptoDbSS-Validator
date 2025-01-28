@@ -121,6 +121,9 @@ bool blread2(const std::string& filename,vector<unsigned char> &bl2) {
 
 }
 
+/**
+ * return the qtty of transaction that must contain the block readed
+*/
 string blkscontain2(vector<unsigned char> &bl2){
     string bl="";
     for(uint8_t i = 177; i < 179;i++){
@@ -2245,13 +2248,17 @@ bool checkblks (uint64_t &last){
     return true;
 }
 
+/**
+ * read the hash integrity of builded block
+ */
 vector<unsigned char> read_blRefactHash(vector<unsigned char> &bl2 ){ 
 
     uint qttblks = hexToULL(blkscontain2(bl2));
     uint primerInit=179;
     uint blsize  = bl2.size();
     vector<unsigned char>blRefactHasheds;
-    cout<<endl<<"qttt readed "<<qttblks<<endl;
+
+    //cout<<endl<<"qttt readed "<<qttblks<<endl;
 
     for(uint i = 0 ; i<qttblks; i++){
 
@@ -2259,9 +2266,13 @@ vector<unsigned char> read_blRefactHash(vector<unsigned char> &bl2 ){
             cout<<endl<<"error reading build_lastblRefactHash 1 "<<endl;
             exit_call();
         }
+
+        /*
         cout<<endl<<"bl2[primerInit] "<< byteToHex(bl2[primerInit]);
         cout<<endl<<"getBlCompressType bl2[primerInit] "<<byteToHex(getBlCompressType(bl2[primerInit]));
-        PrimerChange(bl2[primerInit],primerInit );
+        */
+
+       PrimerChange(bl2[primerInit],primerInit );
     }
 
     for (uint32_t primerInitc = primerInit; primerInit<primerInitc+2;primerInit++){

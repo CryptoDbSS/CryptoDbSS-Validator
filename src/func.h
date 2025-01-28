@@ -99,7 +99,7 @@ try {
 
     if (!file.is_open()) {
         // Manejo de error si no se pudo abrir el archivo
-        throw std::runtime_error("No se pudo abrir el archivo");
+        throw std::runtime_error("Could not open file "+filename);
                 
     }
 
