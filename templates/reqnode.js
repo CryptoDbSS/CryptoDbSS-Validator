@@ -179,7 +179,7 @@ async function peers() {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ "resourse": ".", "b": 2 })
+      body: JSON.stringify({ "resource": ".", "b": 2 })
   })
   .then(response => response.text())
   .then(data => document.getElementById("response").innerHTML = data)
@@ -302,7 +302,7 @@ async function refact() {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ "resourse": 1, "b": 2 })
+    body: JSON.stringify({ "resource": 1, "b": 2 })
 })
 .then(response => response.text())
 .then(data => document.getElementById("response").innerHTML = data)
@@ -370,7 +370,7 @@ async function setmaxtr() {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ "resourse": selectElement, "o": 1 })
+      body: JSON.stringify({ "resource": selectElement, "o": 1 })
        }).then(response => response.text())
        .then(data => document.getElementById("response").innerHTML = data)
        .catch(error => console.log(error));
@@ -389,7 +389,7 @@ async function maxsecresp() {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ "resourse": selectElement, "o": 2 })
+        body: JSON.stringify({ "resource": selectElement, "o": 2 })
          }).then(response => response.text())
          .then(data => document.getElementById("response").innerHTML = data)
          .catch(error => console.log(error));
@@ -408,7 +408,7 @@ async function portset() {
               'Accept': 'application/json',
               'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ "resourse": selectElement, "o": 3 })
+          body: JSON.stringify({ "resource": selectElement, "o": 3 })
            }).then(response => response.text())
            .then(data => document.getElementById("response").innerHTML = data)
            .catch(error => console.log(error));
@@ -427,7 +427,7 @@ async function feedsToDirset() {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ "resourse": selectElement, "o": 4 })
+      body: JSON.stringify({ "resource": selectElement, "o": 4 })
        }).then(response => response.text())
        .then(data => document.getElementById("response").innerHTML = data)
        .catch(error => console.log(error));
@@ -446,7 +446,7 @@ async function feedsRatioset() {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ "resourse": selectElement, "o": 5 })
+      body: JSON.stringify({ "resource": selectElement, "o": 5 })
        }).then(response => response.text())
        .then(data => document.getElementById("response").innerHTML = data)
        .catch(error => console.log(error));
@@ -465,7 +465,7 @@ async function shablbmaxbuffer() {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ "resourse": selectElement, "o": 6 })
+      body: JSON.stringify({ "resource": selectElement, "o": 6 })
        }).then(response => response.text())
        .then(data => document.getElementById("response").innerHTML = data)
        .catch(error => console.log(error));
@@ -484,7 +484,7 @@ async function accIndexMaxCache() {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ "resourse": selectElement, "o": 7 })
+      body: JSON.stringify({ "resource": selectElement, "o": 7 })
        }).then(response => response.text())
        .then(data => document.getElementById("response").innerHTML = data)
        .catch(error => console.log(error));
@@ -503,7 +503,7 @@ async function SetTimingBl() {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ "resourse": selectElement, "o": 8 })
+      body: JSON.stringify({ "resource": selectElement, "o": 8 })
        }).then(response => response.text())
        .then(data => document.getElementById("response").innerHTML = data)
        .catch(error => console.log(error));

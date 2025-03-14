@@ -1,35 +1,51 @@
-/*
- * Software Name: CryptoDbSS
+/*******************************************************************************
+
+ * This notice, including the copyright notice and permission notice, 
+ * must be retained in all copies or substantial portions of the Software and 
+ * in all derivative works.
+ *
+ * Software Name: CryptoDbSS-Validator
  * Copyright (C) 2025 Steeven J Salazar.
  * License: CryptoDbSS: Software Review and Audit License
  * 
- * https://github.com/Steeven512/CryptoDbSS
+ * https://github.com/CryptoDbSS/CryptoDbSS-Validator
  *
- * IMPORTANT: Before using, compiling or do anything with this software, 
- * you must read and accept the terms of this License.
+ * IMPORTANT: Before using, compiling, or doing anything with this software,
+ * you must read and accept the terms of the License provided with this software.
+ *
+ * If you do not have a copy of the License, you can obtain it at the following link:
+ * https://github.com/CryptoDbSS/CryptoDbSS-Validator/blob/main/LICENSE.md
+ *
+ * By using, compiling, or modifying this software, you implicitly accept
+ * the terms of the License. If you do not agree with the terms,
+ * do not use, compile, or modify this software.
  * 
  * This software is provided "as is," without warranty of any kind.
  * For more details, see the LICENSE file.
- */
+
+********************************************************************************/
 
 
-/* 
+/* ********************************************************************************
  
-The CryptoDbSS, blockchain-core, consensus, protocols and misc.
+    The CryptoDbSS, blockchain-core, consensus, protocols and misc.
 
-This software is a prototype version, it should only be used for 
-development, testing, study and auditing proporses. 
+    This software is a review and audit release, it should only be used for 
+    development, testing, education and auditing purposes. 
 
-Third-party dependencies: CrowCpp, Crypto++, OpenSSL, Boost, ASIO, libcurl.
+    Third-party dependencies: CrowCpp, Crypto++, OpenSSL, Boost, ASIO, libcurl.
 
-questions, suggestions or contact : Steevenjavier@gmail.com
+    questions, suggestions or contact : Steevenjavier@gmail.com
 
-*/
+                                S.S
+
+*********************************************************************************/
 
 #ifndef COMPRESION_H
 #define COMPRESION_H
 
 #include "CryptoDbSS.cpp"
+#include "TransactionType.h"
 
 
 using namespace std;
@@ -42,10 +58,14 @@ string readbalanceString(string stg, bool side);
 bool build_blks(uint &qttblks, uint64_t &last, vector<unsigned char> &bl2 );
 void exit_call();
 string typebl(string bl);
+uint8_t TypeTransaction(string &stg);
+uint64_t readValueTransactionUint64(string &stg);
+string readValueTransactionString(string &stg);
 
 extern uint16_t maxCompPoint;
 
 uint8_t getBlCompressType(uint8_t bltype){ 
+    
     if(bltype==0x0B||bltype==0x1A||bltype==0x29||bltype==0x38){
         return 0x0B;
     }
@@ -153,13 +173,11 @@ string definebltype(bool (&TransacElementCompression)[4],string &blktype){
     }
     if(!TransacElementCompression[0]&&!TransacElementCompression[1]&&!TransacElementCompression[2]&& TransacElementCompression[3]){
         if(blktype== "00"){return "0E";}
-        if(blktype== "04"){return "1D";}
         if(blktype== "06"){return "2C";}
         if(blktype== "08"){return "3B";}
     }
     if(!TransacElementCompression[0]&& TransacElementCompression[1]&&!TransacElementCompression[2]&& TransacElementCompression[3]){
         if(blktype== "00"){return "0F";}
-        if(blktype== "04"){return "1E";}
         if(blktype== "06"){return "2D";}
         if(blktype== "08"){return "3C";}
     }
@@ -171,13 +189,11 @@ string definebltype(bool (&TransacElementCompression)[4],string &blktype){
     }
     if( TransacElementCompression[0]&&!TransacElementCompression[1]&&!TransacElementCompression[2]&& TransacElementCompression[3]){
         if(blktype== "00"){return "11";}
-        if(blktype== "04"){return "20";}
         if(blktype== "06"){return "2F";}
         if(blktype== "08"){return "3E";}
     }
     if( TransacElementCompression[0]&& TransacElementCompression[1]&&!TransacElementCompression[2]&& TransacElementCompression[3]){
         if(blktype== "00"){return "12";}
-        if(blktype== "04"){return "21";}
         if(blktype== "06"){return "30";}
         if(blktype== "08"){return "3F";}
     }
@@ -189,13 +205,11 @@ string definebltype(bool (&TransacElementCompression)[4],string &blktype){
     }
     if(!TransacElementCompression[0]&&!TransacElementCompression[1]&& TransacElementCompression[2]&& TransacElementCompression[3]){
         if(blktype== "00"){return "14";}
-        if(blktype== "04"){return "23";}
         if(blktype== "06"){return "32";}
         if(blktype== "08"){return "41";}
     }
     if(!TransacElementCompression[0]&& TransacElementCompression[1]&& TransacElementCompression[2]&& TransacElementCompression[3]){
         if(blktype== "00"){return "15";}
-        if(blktype== "04"){return "24";}
         if(blktype== "06"){return "33";}
         if(blktype== "08"){return "42";}
     }
@@ -213,47 +227,197 @@ string definebltype(bool (&TransacElementCompression)[4],string &blktype){
     }
     if( TransacElementCompression[0]&&!TransacElementCompression[1]&& TransacElementCompression[2]&& TransacElementCompression[3]){
         if(blktype== "00"){return "18";}
-        if(blktype== "04"){return "27";}
         if(blktype== "06"){return "36";}
         if(blktype== "08"){return "45";}
     }
     if( TransacElementCompression[0]&& TransacElementCompression[1]&& TransacElementCompression[2]&& TransacElementCompression[3]){
         if(blktype== "00"){return "19";}
-        if(blktype== "04"){return "28";}
         if(blktype== "06"){return "37";}
         if(blktype== "08"){return "46";}
     }
+
+    cout<<endl<<"definebltype() blktype no match"<<endl;
+
+    exit_call();
 
     return "FF";
     
 }
 
-string compressAccStr(string DataTranacUncompressed){
-    return DataTranacUncompressed.substr(124,4);
+uint8_t definebltype0x0A(bool (&TransacElementCompression)[3],uint8_t &blktype){
+
+    if(!TransacElementCompression[0]&&!TransacElementCompression[1]&&!TransacElementCompression[2]){
+        switch(blktype){
+            case 0x0A:
+                return 0x1D;
+            case 0x0C:
+                return 0x47;
+            default:
+
+                cout<<endl<<"definebltype0x0A blktype no match - 0A 0C"<<endl;
+                exit_call();
+        }
+    }
+    if( !TransacElementCompression[0]&&!TransacElementCompression[1]&&TransacElementCompression[2]){
+        if(blktype== 0x0A){return 0x1E;}
+    }
+    if( !TransacElementCompression[0]&&TransacElementCompression[1]&&!TransacElementCompression[2]){
+        if(blktype== 0x0A){return 0x20;}
+        if(blktype== 0x0C){return 0x48;}
+    }
+    if( !TransacElementCompression[0]&&TransacElementCompression[1]&&TransacElementCompression[2]){
+        if(blktype== 0x0A){return 0x21;}
+    }
+    if( TransacElementCompression[0]&&!TransacElementCompression[1]&&!TransacElementCompression[2]){
+        if(blktype== 0x0A){return 0x23;}
+        if(blktype== 0x0C){return 0x49;}
+    }
+    if( TransacElementCompression[0]&&!TransacElementCompression[1]&&TransacElementCompression[2]){
+        if(blktype== 0x0A){return 0x24;}
+        
+    }
+    if( TransacElementCompression[0]&&TransacElementCompression[1]&&!TransacElementCompression[2]){
+        if(blktype== 0x0A){return 0x27;}
+        if(blktype== 0x0C){return 0x4A;}
+    }
+    if( TransacElementCompression[0]&&TransacElementCompression[1]&&TransacElementCompression[2]){
+        if(blktype== 0x0A){return 0x28;}
+    }
+
+    cout<<endl<<"definebltype0x0A blktype no match"<<endl;
+    exit_call();
+
+    return 0xFF;
+    
 }
 
-string compressAccTransacStr(string DataTranacUncompressed, bool side){
-    if(!side){
-        return DataTranacUncompressed.substr(126,4);
-    } 
-    return DataTranacUncompressed.substr(270,4);
+string compressAccStr(string AccUncompressed){
+    return AccUncompressed.substr(124,4);
 }
 
-string compressTransac(string &DataTranacUncompressed, uint16_t lastTopTransac){
+string compress0x0A(string &DataTransactionUncompressed, uint16_t lastTopTransac){
 
     extern string* blksOP;
-    string blktype= DataTranacUncompressed.substr(0,2);
     extern map< array <unsigned char,64>, Accsync >AccSync;
+
+    bool TransacElementCompression [3];
+    uint8_t blktype= TypeTransaction(DataTransactionUncompressed);
     string newCompressedtransac="";
+    string accL = readaccountString(DataTransactionUncompressed, false);
+    array<unsigned char, 64 > acc = accArr( accL );
+    
+    newCompressedtransac+=DataTransactionUncompressed.substr(TransactionDataFormat[blktype].POS_transactionNumber_string, TransactionDataFormat[blktype].size_transactionNumber_string );
+
+    //cout<<endl<<" compressor debug 0x0a newCompressedtransac "<<newCompressedtransac<<endl;
+
+    // 1 accL compress
+    auto it  = AccSync.find(acc);
+    if (it != AccSync.end()){
+        //cout<<endl<<"debug compress0x0A accL AccSync[acc].DataCompressIndex "<<AccSync[acc].DataCompressIndex<<endl;
+        if(  AccSync[acc].DataCompressIndex!=0 &&  AccSync[acc].DataCompressIndex <= maxCompPoint ) {
+            newCompressedtransac += uint16ToHex(AccSync[acc].DataCompressIndex)+compressAccStr(accL);
+            TransacElementCompression[0]=true;
+        } else { 
+
+            for(uint16_t i = 0; i <= lastTopTransac; i++){
+
+                uint8_t bltypetransaction = hexToUint8_t(typebl(blksOP[i]));
+
+                if(bltypetransaction == 0x00 || bltypetransaction == 0x04 || bltypetransaction == 0x06|| bltypetransaction == 0x08){
+
+                    if (i == lastTopTransac){ 
+                        newCompressedtransac += accL;
+                        TransacElementCompression[0]=false;
+                        AccSync[acc].DataCompressIndex=0;
+                        break;
+                    }
+                    if(readaccountString(blksOP[i], false) == accL) {
+                        newCompressedtransac += uint16ToHex(0)+compressAccStr(accL);
+                        TransacElementCompression[0]=true;
+                        break;
+                    }
+                    if(readaccountString(blksOP[i], true) == accL) {
+                        newCompressedtransac += uint16ToHex(0)+compressAccStr(accL);
+                        TransacElementCompression[0]=true;
+                        break;
+                    }
+                }
+
+                if(bltypetransaction == 0x0A || bltypetransaction == 0x0C){
+
+                    if (i == lastTopTransac){ 
+                        newCompressedtransac += accL;
+                        TransacElementCompression[0]=false;
+                        AccSync[acc].DataCompressIndex=0;
+                        break;
+                    }
+                    if(readaccountString(blksOP[i], false) == accL) {
+                        newCompressedtransac += uint16ToHex(0)+compressAccStr(accL);
+                        TransacElementCompression[0]=true;
+                        break;
+                    }
+
+                }
+
+            }
+        }
+    } else { 
+        cout<<endl<<"handle the several internal memory error compress0x0A it != AccSync.end() ";
+        exit_call();
+        //handle the several internal memory error
+    }
+
+    // 2 valueL Compress
+    if ( hexToUint64( readbalanceString(DataTransactionUncompressed , false)) <=4294967295 ){
+        //cout<<endl<<"debug transac compresed valuel "<<hexToUint64( readbalanceString(DataTransactionUncompressed , false));
+        TransacElementCompression[1]=true;
+        newCompressedtransac+=readbalanceString(DataTransactionUncompressed , false).substr(8,8);
+    } else {
+
+        TransacElementCompression[1]=false;
+        newCompressedtransac+=readbalanceString(DataTransactionUncompressed , false);
+
+    }
+
+    // 3 value transaction Compress
+    if(blktype == 0x0A){ 
+        if ( readValueTransactionUint64(DataTransactionUncompressed ) <=4294967295 ){
+            //out<<endl<<"debug transac compresed valuel "<< readValueTransactionUint64(DataTransactionUncompressed);
+            TransacElementCompression[2]=true;
+            newCompressedtransac+=readValueTransactionString(DataTransactionUncompressed ).substr(8,8);
+        } else {
+
+            TransacElementCompression[2]=false;
+            newCompressedtransac+=readValueTransactionString(DataTransactionUncompressed );
+
+        }
+    }
+
+    string definedtransac = uint8ToHexPatch(definebltype0x0A(TransacElementCompression,blktype))+newCompressedtransac+DataTransactionUncompressed.substr(TransactionDataFormat[blktype].POS_Msg32bytes_string,TransactionDataFormat[blktype].size_TransactionWithsignWoHidden_string-TransactionDataFormat[blktype].POS_Msg32bytes_string);
+
+    //cout<<endl<<"transac compresed is "<<definedtransac<< endl << endl;
+    //cout<<endl<<"transac uncompresed is "<<DataTransactionUncompressed<< endl << endl;
+
+    return definedtransac;
+
+}
+
+string compress0x00(string &DataTransactionUncompressed, uint16_t lastTopTransac){
+
+    extern string* blksOP;
+    extern map< array <unsigned char,64>, Accsync >AccSync;
+
     bool TransacElementCompression [4];
-    string accL = readaccountString(DataTranacUncompressed, false);
-    string accR = readaccountString(DataTranacUncompressed, true);
+    string blktype= DataTransactionUncompressed.substr(0,2);
+    string newCompressedtransac="";
+    string accL = readaccountString(DataTransactionUncompressed, false);
+    string accR = readaccountString(DataTransactionUncompressed, true);
     array<unsigned char, 64 > acc = accArr( accL );
 
     // 1 accL compress
     auto it  = AccSync.find(acc);
     if (it != AccSync.end()){
-        cout<<endl<<"debug compressor accL AccSync[acc].DataCompressIndex "<<AccSync[acc].DataCompressIndex<<endl;
+        //cout<<endl<<"debug compressor accL AccSync[acc].DataCompressIndex "<<AccSync[acc].DataCompressIndex<<endl;
         if(  AccSync[acc].DataCompressIndex!=0 &&  AccSync[acc].DataCompressIndex <= maxCompPoint ) {
             newCompressedtransac = uint16ToHex(AccSync[acc].DataCompressIndex)+compressAccStr(accL);
             TransacElementCompression[0]=true;
@@ -287,33 +451,34 @@ string compressTransac(string &DataTranacUncompressed, uint16_t lastTopTransac){
         //handle the several internal memory error
     }
 
-    cout<<endl<<"transac compresed accl "<<newCompressedtransac;
+    //cout<<endl<<"transac compresed accl "<<newCompressedtransac;
  
-    //valueL Compress
-    if ( hexToUint64( readbalanceString(DataTranacUncompressed , false)) <=4294967295 ){
-        cout<<endl<<"debug transac compresed valuel "<<hexToUint64( readbalanceString(DataTranacUncompressed , false));
+    // 2 valueL Compress
+    if ( hexToUint64( readbalanceString(DataTransactionUncompressed , false)) <=4294967295 ){
+        //cout<<endl<<"debug transac compresed valuel "<<hexToUint64( readbalanceString(DataTransactionUncompressed , false));
         TransacElementCompression[1]=true;
-        newCompressedtransac+=readbalanceString(DataTranacUncompressed , false).substr(8,8);
+        newCompressedtransac+=readbalanceString(DataTransactionUncompressed , false).substr(8,8);
     } else {
 
         TransacElementCompression[1]=false;
-        newCompressedtransac+=readbalanceString(DataTranacUncompressed , false);
+        newCompressedtransac+=readbalanceString(DataTransactionUncompressed , false);
 
     }
-    cout<<endl<<"transac compresed valuel "<<newCompressedtransac;
 
-    //accR Compress
+    //cout<<endl<<"transac compresed valuel "<<newCompressedtransac;
+
+    // 3 accR Compress
     acc = accArr( accR );
     auto it2  = AccSync.find(acc);
 
     if (it2 != AccSync.end()){
 
-        if(  AccSync[acc].DataCompressIndex!=0 &&  ( AccSync[acc].DataCompressIndex <= maxCompPoint )) {
+        if(  AccSync[acc].DataCompressIndex!=0 &&  ( AccSync[acc].DataCompressIndex <= maxCompPoint ) ) {
             newCompressedtransac += uint16ToHex(AccSync[acc].DataCompressIndex)+compressAccStr(accR);
             TransacElementCompression[2]=true;
         } else { 
 
-            cout<<endl<<"debug bl compress accR - AccSync[acc].DataCompressIndex"<< AccSync[acc].DataCompressIndex;
+            //cout<<endl<<"debug bl compress accR - AccSync[acc].DataCompressIndex"<< AccSync[acc].DataCompressIndex;
             for(uint16_t i = 0 ; i <=lastTopTransac;i++){
 
                 if(typebl(blksOP[i]) == "00" || typebl(blksOP[i]) == "04" || typebl(blksOP[i]) == "06"|| typebl(blksOP[i]) == "08"){
@@ -343,28 +508,54 @@ string compressTransac(string &DataTranacUncompressed, uint16_t lastTopTransac){
 
         //handle the several internal memory error
     }
-    cout<<endl<<"transac compresed accr "<<newCompressedtransac;
+   // cout<<endl<<"transac compresed accr "<<newCompressedtransac;
 
 
-    //valueR Compress
+    // 4 valueR Compress
     if(blktype != "04"){
-        if ( hexToUint64( readbalanceString(DataTranacUncompressed , true)) <=4294967295 ){
+        if ( hexToUint64( readbalanceString(DataTransactionUncompressed , true)) <=4294967295 ){
             TransacElementCompression[3]=true;
-            newCompressedtransac+=readbalanceString(DataTranacUncompressed , true).substr(8,8);
+            newCompressedtransac+=readbalanceString(DataTransactionUncompressed , true).substr(8,8);
         } else {
             TransacElementCompression[3]=false;
-            newCompressedtransac+=readbalanceString(DataTranacUncompressed , true);
+            newCompressedtransac+=readbalanceString(DataTransactionUncompressed , true);
         }
     }else {
         TransacElementCompression[3]=false;
     }
 
-    string definedtransac = definebltype(TransacElementCompression,blktype)+newCompressedtransac+DataTranacUncompressed.substr(290,140);
+    string definedtransac = definebltype(TransacElementCompression,blktype)+newCompressedtransac+DataTransactionUncompressed.substr(290,140);
 
-    cout<<endl<<"transac compresed is "<<definedtransac<< endl << endl;
-    cout<<endl<<"transac uncompresed is "<<DataTranacUncompressed<< endl << endl;
+    //cout<<endl<<"transac compresed is "<<definedtransac<< endl << endl;
+    //cout<<endl<<"transac uncompresed is "<<DataTransactionUncompressed<< endl << endl;
 
     return definedtransac;
+}
+
+string compressTransac(string &DataTransactionUncompressed, uint16_t lastTopTransac){
+
+    switch(TypeTransaction(DataTransactionUncompressed)){
+
+        case 0x00:
+        case 0x04:
+        case 0x06:
+        case 0x08:
+
+            return compress0x00(DataTransactionUncompressed,lastTopTransac );
+            break;
+
+        case 0x0A:
+        case 0x0C:
+
+            return compress0x0A(DataTransactionUncompressed,lastTopTransac );
+            break;
+
+        default:
+            exit_call();
+
+    }
+
+    return "Error compressTransac ";
  
 }
 
@@ -382,14 +573,95 @@ uint16_t dataCompressIndex(uint64_t &lastBL,uint64_t &last,bool compressedPoint,
     return 0;
 }
 
+void AccIndexCompareCompressPointBuildVectorAccB3(vector<unsigned char>&bl2,vector<array<unsigned char,64>> &accB, uint &primerInit, uint8_t (&CompresedAcc)[4]) {
+
+    array<unsigned char, 64> accRead;
+    uint primer = primerInit;
+    uint8_t bltype = DbTransaction[bl2[primer]].CompressTypeTransaction;
+
+    if(!DbTransaction[bltype].AccLIsCompressed){
+
+        for(uint8_t i = 0;i<2;i++){
+
+            if(CompresedAcc[i+2]!=bl2[primer+i+DbTransaction[bltype].accLPos+62]){
+
+                break;
+            }
+            if(i==1){
+                for(uint8_t e = 0; e<64;e++){
+                    accRead[e] = bl2[primer +e+DbTransaction[bltype].accLPos];
+                }
+                accB.push_back(accRead);
+            }   
+        }
+    }
+
+    if(!DbTransaction[bltype].AccRIsCompressed){
+
+        for(uint8_t i = 0;i<2;i++){
+            if(CompresedAcc[i+2]!=bl2[primer+i+DbTransaction[bltype].accRPos+62]){
+                break;
+            }
+            if(i==1){
+                for(uint8_t e = 0; e<64;e++){
+                    accRead[e] = bl2[primer+e+DbTransaction[bltype].accRPos];
+                }
+               accB.push_back(accRead);
+               
+            }   
+        }
+    }
+}
+
+void AccIndexCompareCompressPointBuildVectorAccB2(vector<unsigned char>&bl2,vector<string> &accB, uint &primerInit, uint8_t (&CompresedAcc)[4]) {
+
+    string accRead = "";
+    uint primer = primerInit;
+    uint8_t bltype = DbTransaction[bl2[primer]].CompressTypeTransaction;
+
+    if(!DbTransaction[bltype].AccLIsCompressed){
+
+        for(int i = 0;i<2;i++){
+
+            if(CompresedAcc[i+2]!=bl2[primer+i+DbTransaction[bltype].accLPos+62]){
+                break;
+            }
+            if(i==1){
+                for(int e = 0; e<64;e++){
+                    accRead += byteToHex2(bl2[primer +1+e]);
+                }
+                accB.push_back(accRead);
+            }   
+        }
+    }
+
+    accRead = "";
+
+    if(!DbTransaction[bltype].AccRIsCompressed){
+
+        for(int i = 0;i<2;i++){
+            if(CompresedAcc[i+2]!=bl2[primer+i+DbTransaction[bltype].accRPos+62]){
+                break;
+            }
+            if(i==1){
+                for(int e = 0; e<64;e++){
+                    accRead += byteToHex2(bl2[primer+e+DbTransaction[bltype].accRPos]);
+                }
+                accB.push_back(accRead);
+            }   
+        }
+    }
+}
+
+//anade cuentas coincidentes con el compress point al vector de accs
 void AccIndexCompareCompressPointBuildVectorAccB(vector<unsigned char>&bl2,vector<string> &accB, uint &primerInit, uint8_t (&CompresedAcc)[4]) {
 
     string accRead = "";
     uint primer = primerInit;
-    uint8_t bltype = getBlCompressType(bl2[primer]);
-
+    uint8_t bltype = DbTransaction[bl2[primer]].CompressTypeTransaction;
 
     if(bltype==0x00||bltype==0x04|bltype==0x06||bltype==0x08||bltype==0x0E){
+
         for(int i = 0;i<2;i++){
             if(CompresedAcc[i+2]!=bl2[primer +63+i]){
                 break;
@@ -399,8 +671,7 @@ void AccIndexCompareCompressPointBuildVectorAccB(vector<unsigned char>&bl2,vecto
                     accRead += byteToHex2(bl2[primer +1+e]);
                 }
                 accB.push_back(accRead);
-
-            }
+            }   
         }
         for(int i = 0;i<2;i++){
             if(CompresedAcc[i+2]!=bl2[primer +135+i]){
@@ -497,6 +768,44 @@ void AccIndexCompareCompressPointBuildVectorAccB(vector<unsigned char>&bl2,vecto
 
 }
 
+bool buildAccbVector2(vector<array<unsigned char, 64>> &accB, uint64_t last, uint8_t (&compressedPoint)[4]){
+
+    uint32_t qttblks;
+    uint primerInit = 179;
+    vector<unsigned char>bl2;
+    uint16_t CompressBl = (static_cast<uint16_t>(compressedPoint[0]) << 8) | compressedPoint[1];
+    uint8_t CompressAcc[2];
+    //std::memcpy(CompressAcc, compressedPoint + 2, 2);
+
+    if(CompressBl>last){
+        cout<<endl<<"error buildAccbVectors CompressBl>last "<<CompressBl;
+        return false;
+    }
+
+    last-=CompressBl;
+
+    if(!build_blks( qttblks, last,  bl2)){
+        return false;
+    }
+
+    for(uint a = qttblks; a>0 ; a--){ 
+        
+        AccIndexCompareCompressPointBuildVectorAccB3(bl2, accB, primerInit, compressedPoint);
+
+        if(!PrimerChange(bl2[primerInit],primerInit)){
+            cout<<endl<<"error buildAccbVector !PrimerChange"<<endl;
+            exit_call();
+        }
+    }
+    if(accB.size()>0){
+        return true;
+    } else {
+        cout<<endl<<"error buildAccbVector() accB.size()<1 acc compressed is missing"<<endl; 
+        return false;
+    }
+       
+}  
+
 bool buildAccbVector(vector<string> &accB, uint64_t last, uint8_t (&compressedPoint)[4]){
 
     uint32_t qttblks;
@@ -513,14 +822,14 @@ bool buildAccbVector(vector<string> &accB, uint64_t last, uint8_t (&compressedPo
 
     last-=CompressBl;
 
-    cout<<endl<<"debug buildAccbVector last "<<last<<endl;
+
 
     if(!build_blks( qttblks, last,  bl2)){
         return false;
     }
 
     for(uint a = qttblks; a>0 ; a--){ 
-        AccIndexCompareCompressPointBuildVectorAccB(bl2,accB,primerInit,  compressedPoint);
+        AccIndexCompareCompressPointBuildVectorAccB2(bl2, accB, primerInit, compressedPoint);
         if(!PrimerChange(bl2[primerInit],primerInit)){
             cout<<endl<<"error buildAccbVector !PrimerChange"<<endl;
             exit_call();
@@ -533,11 +842,34 @@ bool buildAccbVector(vector<string> &accB, uint64_t last, uint8_t (&compressedPo
         return false;
     }
        
-} 
+}  
+
+void getCompressedPointBlTransac2(vector<unsigned char> &bl2 , uint8_t (&compressedPoint)[4],uint &primer, bool side){
+
+    uint8_t bltype = DbTransaction[bl2[primer]].CompressTypeTransaction;
+
+    if(!side){
+
+        for(int i =0; i<4;i++){
+            compressedPoint[i]=bl2[primer+i+DbTransaction[bltype].accLPos];
+        }
+        return;
+
+    } else{
+        
+        for(int i =0; i<4;i++){
+            compressedPoint[i]=bl2[primer+i+DbTransaction[bltype].accRPos];
+        }
+        return;
+    }
+
+    return;
+
+}
 
 void getCompressedPointBlTransac(vector<unsigned char> &bl2 , uint8_t (&compressedPoint)[4],uint &primer, bool side){
 
-    uint8_t bltype = getBlCompressType(bl2[primer] );
+    uint8_t bltype = DbTransaction[bl2[primer]].CompressTypeTransaction;
 
     if(bltype==0x0B||bltype==0x10||bltype==0x11|bltype==0x12|| (bltype==0x16&&!side )|| (bltype==0x17&&!side )|| (bltype==0x18&&!side )|| (bltype==0x19&&!side )){
 
@@ -572,7 +904,6 @@ void getCompressedPointBlTransac(vector<unsigned char> &bl2 , uint8_t (&compress
 
         for(int i =0; i<4;i++){
             compressedPoint[i]=bl2[primer+i+9];
-            cout << byteToHex2( bl2[primer+i+9]);
         }
         return;
     }

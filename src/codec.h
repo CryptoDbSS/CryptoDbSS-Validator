@@ -1,30 +1,44 @@
-/*
- * Software Name: CryptoDbSS
+/*******************************************************************************
+
+ * This notice, including the copyright notice and permission notice, 
+ * must be retained in all copies or substantial portions of the Software and 
+ * in all derivative works.
+ *
+ * Software Name: CryptoDbSS-Validator
  * Copyright (C) 2025 Steeven J Salazar.
  * License: CryptoDbSS: Software Review and Audit License
  * 
- * https://github.com/Steeven512/CryptoDbSS
+ * https://github.com/CryptoDbSS/CryptoDbSS-Validator
  *
- * IMPORTANT: Before using, compiling or do anything with this software, 
- * you must read and accept the terms of this License.
+ * IMPORTANT: Before using, compiling, or doing anything with this software,
+ * you must read and accept the terms of the License provided with this software.
+ *
+ * If you do not have a copy of the License, you can obtain it at the following link:
+ * https://github.com/CryptoDbSS/CryptoDbSS-Validator/blob/main/LICENSE.md
+ *
+ * By using, compiling, or modifying this software, you implicitly accept
+ * the terms of the License. If you do not agree with the terms,
+ * do not use, compile, or modify this software.
  * 
  * This software is provided "as is," without warranty of any kind.
  * For more details, see the LICENSE file.
- */
 
+********************************************************************************/
 
-/* 
+/* ********************************************************************************
  
-The CryptoDbSS, blockchain-core, consensus, protocols and misc.
+    The CryptoDbSS, blockchain-core, consensus, protocols and misc.
 
-This software is a prototype version, it should only be used for 
-development, testing, study and auditing proporses. 
+    This software is a review and audit release, it should only be used for 
+    development, testing, education and auditing purposes. 
 
-Third-party dependencies: CrowCpp, Crypto++, OpenSSL, Boost, ASIO, libcurl.
+    Third-party dependencies: CrowCpp, Crypto++, OpenSSL, Boost, ASIO, libcurl.
 
-questions, suggestions or contact : Steevenjavier@gmail.com
+    questions, suggestions or contact : Steevenjavier@gmail.com
 
-*/
+                                S.S
+
+*********************************************************************************/
 
 #ifndef CODEC_H
 #define CODEC_H
@@ -33,6 +47,25 @@ questions, suggestions or contact : Steevenjavier@gmail.com
 #include <sstream>
 
 using namespace std;
+
+uint8_t hexToUint8_t(const std::string hex) {
+    if (hex.length() != 2) {
+        std::cerr << "Error: the hex-string provided length != 2 " <<hex.length()<<endl;
+        return 0;
+    }
+
+    std::istringstream iss(hex);
+    uint16_t result;
+    iss >> std::hex >> result;
+
+    if (iss.fail()) {
+        std::cerr << "Error: the hex-string provided length != 2" << std::endl;
+        return 0;
+    }
+
+    return result;
+}
+
 
 string ullToHex(unsigned long long ullValue){
     stringstream ss;
@@ -70,7 +103,14 @@ string uint16ToHex(uint16_t Value){
     return ss.str();
 }
 
+string uint8ToHexPatch(uint16_t Value){
+    stringstream ss;
+    ss << hex << uppercase << setw(4) << setfill('0') << Value;
+    return ss.str().substr(2,2);
+}
+ 
 string uint8ToHex(uint8_t Value){
+    cout<<endl<<"call to uint8ToHex, is bugged!!!";
     stringstream ss;
     ss << hex << uppercase << setw(2) << setfill('0') << Value;
     return ss.str();
@@ -103,11 +143,36 @@ string bytesToHexStr(const vector<uint8_t>& bytes){
     return str;
 }
 
+vector<uint8_t> HexStrToBytes(const std::string& str){
+    vector<uint8_t>Data;
+    for(uint i = 0; i<str.length();i+=2){
+        Data.push_back(hexToUint8_t(str.substr(i,2)));
+    }
+    return Data;
+}
+
+string byteToHex(unsigned char byteValue){
+    stringstream ss;
+    ss << hex << setw(2) << setfill('0') << (int)byteValue;
+    return ss.str();
+}
+
 string byteToHex2(unsigned char &byteValue){
     stringstream ss;
     ss << hex << setw(2) << setfill('0') << (int)byteValue;
     string str= ss.str();
     for (auto &c : str){c = toupper(c);}
+    return str;
+}
+
+string byteVectorToHexStr(const vector<unsigned char>& bytes){
+
+    string str="";
+
+    for(uint i =0; i<bytes.size();i++){
+        str+=byteToHex(bytes[i]);
+    }
+
     return str;
 }
 
@@ -226,6 +291,7 @@ uint hexToUint16(std::string c){
     return intValue;
 }
 
+
 bool HexCheck(std::string c){
     for (unsigned int i = 0; i < c.length(); i++) {
         if (!isHexDigit(c[i])) {
@@ -233,32 +299,16 @@ bool HexCheck(std::string c){
             return false;
         }
     }
-return true;
+    return true;
 }
 
-uint8_t hexToUint8_t(const std::string hex) {
-    if (hex.length() != 2) {
-        std::cerr << "Error: the hex-string provided length != 2 " <<hex.length()<<endl;
-        return 0;
-    }
-
-    std::istringstream iss(hex);
-    uint16_t result;
-    iss >> std::hex >> result;
-
-    if (iss.fail()) {
-        std::cerr << "Error: the hex-string provided length != 2" << std::endl;
-        return 0;
-    }
-
-    return result;
-}
-
+/*
 std::string byteToHex(uint8_t byteValue) {
     std::stringstream ss;
     ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<uint16_t>(byteValue);
     return ss.str();
 }
+*/
 
 
 #endif

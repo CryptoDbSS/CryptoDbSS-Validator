@@ -1,30 +1,44 @@
-/*
- * Software Name: CryptoDbSS
+/*******************************************************************************
+
+ * This notice, including the copyright notice and permission notice, 
+ * must be retained in all copies or substantial portions of the Software and 
+ * in all derivative works.
+ *
+ * Software Name: CryptoDbSS-Validator
  * Copyright (C) 2025 Steeven J Salazar.
  * License: CryptoDbSS: Software Review and Audit License
  * 
- * https://github.com/Steeven512/CryptoDbSS
+ * https://github.com/CryptoDbSS/CryptoDbSS-Validator
  *
- * IMPORTANT: Before using, compiling or do anything with this software, 
- * you must read and accept the terms of this License.
+ * IMPORTANT: Before using, compiling, or doing anything with this software,
+ * you must read and accept the terms of the License provided with this software.
+ *
+ * If you do not have a copy of the License, you can obtain it at the following link:
+ * https://github.com/CryptoDbSS/CryptoDbSS-Validator/blob/main/LICENSE.md
+ *
+ * By using, compiling, or modifying this software, you implicitly accept
+ * the terms of the License. If you do not agree with the terms,
+ * do not use, compile, or modify this software.
  * 
  * This software is provided "as is," without warranty of any kind.
  * For more details, see the LICENSE file.
- */
 
+********************************************************************************/
 
-/* 
+/* ********************************************************************************
  
-The CryptoDbSS, blockchain-core, consensus, protocols and misc.
+    The CryptoDbSS, blockchain-core, consensus, protocols and misc.
 
-This software is a prototype version, it should only be used for 
-development, testing, study and auditing proporses. 
+    This software is a review and audit release, it should only be used for 
+    development, testing, education and auditing purposes. 
 
-Third-party dependencies: CrowCpp, Crypto++, OpenSSL, Boost, ASIO, libcurl.
+    Third-party dependencies: CrowCpp, Crypto++, OpenSSL, Boost, ASIO, libcurl.
 
-questions, suggestions or contact : Steevenjavier@gmail.com
+    questions, suggestions or contact : Steevenjavier@gmail.com
 
-*/
+                                S.S
+
+*********************************************************************************/
 
 #ifndef THREADSDW_H
 #define THREADSDW_H
@@ -53,7 +67,7 @@ extern vector<string>blksOPSync;
 extern map<int,bool>checkTransacSync;
 extern map<uint16_t,bool> numberspace;
 extern map< array <unsigned char,64>, dbstruct >mapIndex;
-extern int32_t transacscomfirmed;
+extern int32_t transacsconfirmed;
 extern bool Refactorizing;
 extern mutex WritingAccSync;
 extern bool syncing;
@@ -80,358 +94,47 @@ extern mutex peerssyncblock;
 extern mutex queuetransacsmtx;
 extern uint16_t errorMatchminCount;
 
-void getdatatransacthread1 (string queuetransac, string FromDir, string ToDir,  string value, string firm){
+/**
+ * defines the type of transaction by looking to see if the account is in transaction
+ */
+void getdatatransacthread1 (string &queuetransac, string &DataTransacJson){
 
     std::unique_lock<std::mutex> queuetransacsmtxlock(queuetransacsmtx);
 
+    auto x = crow::json::load(DataTransacJson);
+
     if ( matchMinQueueIp() == "localhost"){
 
-        string stg1 = DataTransac(FromDir, ToDir, hexToULL(value),feeds_ratio);
-        cout<<endl<<" debug getdatatransacthread1 DataTransac "<<stg1;
-        
-        if (stg1.length() != 494) {
-            cout<<endl<<"DataTransac error !length : "<<stg1.length()<<"   "<<stg1<<endl;
-            queuetransacs[queuetransac] = "DataTransac error !length : "+ stg1;
-            return;
-        }
+        string TransactionType = x["v"].s();
+        string cantS = x["y"].s();
+        uint8_t TransactionTypeUint8 = hexToUint8_t(TransactionType);
+        string stg1 = GetDataTransac( DataTransacJson, TransactionTypeUint8 );
 
-        std::unique_lock<std::mutex> writingspacelock(writingspace);
-        
-        vector<unsigned char> vec;
-        addHexStringInVector(vec, stg1);
-        uint blkSpace = WriteSpaceOp (vec);
-        blksOP[blkSpace] = stg1;
+        processAsyncTransac(queuetransac , stg1,  TransactionTypeUint8, hexToUint64(cantS) );
 
-        // alg 1.0
-        // - la peticion debe ser sincronica
-        // - verificar espacio disponible de transaccion;
-        // - verificar que las direcciones no esten en transacciones pendientes
-
-        string accL = readaccountString(stg1, false);
-        string accR = readaccountString(stg1, true);
-        uint64_t rests;
-        uint8_t PreTransacType =255;
-
-        uint8_t OpTransacType;
-        string accBlL;
-        string accBlR;
-        uint64_t balanceL;
-        uint64_t balanceR;
-
-        rests =  hexToULL(readbalanceString(stg1 , false ));
-
-        // primer bucle encuentra si las cuentas estan en una transaccion pendiente y define las restas
-        for(int i = 0; i< blkSpace ;i++){
-
-            if( typebl(blksOP[i]) == "FF"){ continue;}
-
-            OpTransacType = typebl2(blksOP[i]);
-            if( OpTransacType == 0xFF ){ continue;}
-            accBlL = readaccountString(blksOP[i] , false );
-            accBlR = readaccountString(blksOP[i] , true );
-            balanceL = readbalanceuint64(blksOP[i] , false);
-            balanceR = readbalanceuint64(blksOP[i] , true);
-            uint feeds = hexToUint(FeedOfTransac(blksOP[i]));
-
-
-            if ( (accL == accBlL||accR == accBlR||accR == accBlL||accL == accBlR) && (OpTransacType == 2||OpTransacType == 3||OpTransacType == 5||OpTransacType == 7) && blksOP[i] != stg1 ){
-                //pre defining 03
-                if (accL == accBlL && accR == accBlR || accL == accBlR && accR == accBlL){
-
-                    PreTransacType = 3;
-
-                    if(OpTransacType  == 2   ){
-                        cout<<endl<<"OpTransacType  == 2 "<< balanceL<<" "<<balanceR;
-                        if(accL == accBlL){
-                            rests =  balanceL;
-                        } else {
-                            rests =  balanceR;
-                        }
-                    }
-
-                    if(OpTransacType  == 3 ){
-
-                        if(accL == accBlL){
-                        
-                            if(  rests - (balanceL+feeds)  >=rests || balanceL+feeds < balanceL ){ 
-                                cout<<endl<<"bad sums acc transacs";
-                                blksOP[blkSpace]= F256+F256;    
-                                cout<<endl<<"debug rests "<<rests<< " balanceL "<<balanceL<<endl;
-                                queuetransacs[queuetransac] = "bad sums";
-                                return;    
-                            }
-
-                            rests-=balanceL+feeds; // colocar solo si es accl
-                        } 
-
-                    }
-
-                    if(OpTransacType == 5  ){
-
-                        if(accL == accBlL){
-                            rests =  balanceL;
-                        } 
-                    }
-
-                    if(OpTransacType  == 7   ){
-                        if(accL == accBlL){
-                            if(  rests - (balanceL+feeds)  >=rests || balanceL+feeds < balanceL ){ cout<<endl<<"bad sums acc transacs";
-                                blksOP[blkSpace]= F256;    
-                                cout<<endl<<"debug rests "<<rests<< " balanceL "<<balanceL<<endl;
-                                queuetransacs[queuetransac] = "bad sums";
-                                return;    
-                            }
-                            rests-=balanceL+feeds; // anadir feed
-
-                        } else {
-                            rests =  balanceR;
-                        }                                                                                                                                                                                       
-
-                    }
-
-                    cout<<endl<<"now PreTransacType is "<<byteToHex2(PreTransacType)<<endl;
-                }
-                //pre defining 05
-                if (PreTransacType != 3&&(accL != accBlL||accL != accBlR)&& (accR == accBlL||accR == accBlR)){
-                    PreTransacType = 5;
-                    cout<<endl<<"PreTransacType is now "<<PreTransacType<<endl;
-                }    
-                //pre defining 07
-                if (PreTransacType != 3&&(accL == accBlL||accL ==accBlR)&& (accR != accBlL||accR != accBlR)){
-
-                    if(OpTransacType  == 2 ){
-                        if(accL == accBlL){
-                            rests =  balanceL;
-                        } else {
-                            rests =  balanceR;
-                        }
-                    }
-
-                    if(OpTransacType  == 3 ){
-
-                        if(accL == accBlL){
-                        
-                            if(  rests - (balanceL+feeds)  >=rests || balanceL+feeds < balanceL ){ 
-                                cout<<endl<<"bad sums acc transacs";
-                                blksOP[blkSpace]= F256+F256;    
-                                cout<<endl<<"debug rests "<<rests<< " balanceL "<<balanceL<<endl;
-                                queuetransacs[queuetransac] = "bad sums";
-                                return;    
-                            }
-
-                            rests-=balanceL+feeds; // colocar solo si es accl
-                        } 
-                    }
-
-                    if(OpTransacType  == 5  ){
-                        if(accL == accBlL){
-                            rests =  balanceL;
-                        } 
-                    }
-
-                    if(OpTransacType  == 7 ){
-                        if(accL == accBlL){
-                            if(  rests - (balanceL+feeds)  >=rests || balanceL+feeds < balanceL ){ 
-                                cout<<endl<<"bad sums acc transacs";
-                                blksOP[blkSpace]= F256+F256;    
-                                cout<<endl<<"debug rests "<<rests<< " balanceL "<<balanceL<<endl;
-                                queuetransacs[queuetransac] = "bad sums";
-                                return;    
-                            }
-
-                            rests-=balanceL+feeds; // colocar solo si es accl
-                        } else {
-
-                            rests =  balanceR;
-                        }
-
-                    }
-
-                    PreTransacType = 7;
-                    cout<<endl<<"PreTransacType is now "<<PreTransacType<<endl;
-                }
-                //throuht error
-                if(PreTransacType != 3&&PreTransacType != 5&&PreTransacType != 7){
-                    cout<<endl<<"internal trouble in type of transac OpTransacType not match  - bl @ "<<i <<" : "<< blksOP[i]<<endl;
-
-                    blksOP[blkSpace]= F256+F256;      
-
-                    queuetransacs[queuetransac] = "internal server trouble PreTransacType != bltype";
-                    return;   
-            
-                }
-                
-                i++;
-                
-                //segundo bucle comprobacion de cuentas 
-                for(i; i<blkSpace ;i++){
-
-                    OpTransacType = typebl2(blksOP[i]);
-
-                    if( OpTransacType == 0xFF ){ 
-                        continue;
-                    }
-
-                    accBlL = readaccountString(blksOP[i] , false );
-                    accBlR = readaccountString(blksOP[i] , true );
-                    balanceL = readbalanceuint64(blksOP[i] , false);
-                    balanceR = readbalanceuint64(blksOP[i] , true);
-
-                    if ((accL== accBlL || accL == accBlR)&& PreTransacType == 5 && (OpTransacType == 2||OpTransacType == 3||OpTransacType == 5||OpTransacType == 7)){
-                        PreTransacType = 3;
-                    }
-
-                    if ((accR== accBlL|| accR == accBlR)&& PreTransacType == 7 && (OpTransacType == 2||OpTransacType == 3||OpTransacType == 5||OpTransacType == 7)){
-                        PreTransacType = 3;
-                    }
-
-                    if((OpTransacType != 3&& OpTransacType != 4 && OpTransacType != 5 && OpTransacType != 6 && OpTransacType != 7 && OpTransacType != 8)
-                        || (PreTransacType== 0|| PreTransacType== 2|| PreTransacType== 5||PreTransacType== 6) && accL== accBlL  ){
-
-                        cout<<endl<<"internal server trouble - bl @"<<i <<" : "<< blksOP[i]<<endl;
-                        cout<<endl<<"debug blkSpace "<<blkSpace<<" OpTransacType "<<uintToHex(OpTransacType) <<" PreTransacType "<< uintToHex(PreTransacType)<<endl;
-                        blksOP[blkSpace]= F256+F256;      
-                        queuetransacs[queuetransac] = "internal server trouble OpTransacType != bltype";
-                        //cerrar programa error de memoria
-                        return;    
-
-                    }
-
-                    if ( accL == accBlL && (OpTransacType == 3||OpTransacType == 4||OpTransacType == 7||OpTransacType == 8) ){
-
-                        // cout<<endl<<" debug rests cond 1  bl= "<<i<<" rests= " <<rests;
-
-                            if(  rests - (balanceL+feeds)  >=rests || balanceL+feeds < balanceL ){ 
-                                cout<<endl<<"bad sums acc transacs";
-                                blksOP[blkSpace]= F256+F256;    
-                                cout<<endl<<"debug rests "<<rests<< " balanceL "<<balanceL<<endl;
-                                queuetransacs[queuetransac] = "bad sums";
-                                return;    
-                            }
-
-                            rests-=balanceL+feeds; // colocar solo si es accl
-
-                    }
-
-                    if ( (accL == accBlR)&&(OpTransacType == 4||OpTransacType == 6) ){
-                        if( rests + balanceR <= rests ){ 
-                            cout<<endl<<"bad sums acc transacs";
-                            blksOP[blkSpace]= F256+F256;    
-                            cout<<endl<<"debug rests "<<rests<< " balanceL "<<balanceL<<endl;
-                            queuetransacs[queuetransac] = "bad sums";
-                            return;    
-                        }
-                        rests += balanceR;
-                    }  
-
-                }
-                cout <<endl<<"debug rests "<< rests<<endl;
-            }             
-                   
-        }
-
-        if( PreTransacType == 3 ||PreTransacType == 7 ){
-            if(rests <hexToULL(value)+ hexToUint(FeedOfTransac(stg1)) || hexToULL(value)+ hexToUint(FeedOfTransac(stg1)) < hexToULL(value)){
-                cout<<endl<<"sums error rests <1 && (PreTransacType == 03 ||PreTransacType == 07) - rests "<<rests<<endl;
-                blksOP[blkSpace]= F256+F256;    
-                queuetransacs[queuetransac] = "bad sums";
-                return;
-            }
-        }
-     
-        
-        if(blksOP[blkSpace] == stg1 ){
-
-            cout<<endl<<" thread transac number  : "<<hexToInt(blOpNmbr(stg1))-1<<endl;
-
-            changeBlNmbr(stg1, uintToHex(blkSpace+1).substr(4,4));
-            cout<<" thread transac number 2 : "<<hexToInt(blOpNmbr(stg1))-1<<endl;
-
-            if(PreTransacType == 3||PreTransacType == 5||PreTransacType == 7){
-                cout<<endl<<"PreTransacType pre "<<PreTransacType<<endl;
-                //cout<<endl<<"debug stg pre change "<< stg1<<" length "<<stg1.length()<<endl;
-                if(!changeBlType(stg1,uintToHex(PreTransacType).substr(6,2), value)){
-                    cout<<endl<<"error getdatatransacthread1() !changeBlType(stg1,uintToHex(PreTransacType).substr(6,2), value)"<<endl;
-                    exit_call();
-                }
-                //cout<<endl<<"debug stg post change "<< stg1<<" length "<<stg1.length()<<endl;
-                cout<<endl<<"PreTransacType post"<< typebl(stg1) <<endl;
-            }
-
-            cout<<" thread transac number 3 : "<<hexToInt(blOpNmbr(stg1))-1<<endl;
-
-            cout<<endl<<" debugging getdatatransac post loop async operation - stg1 "<<stg1<<endl;
-
-            for (auto &c:stg1){c=toupper(c);}
-
-            blksOP[blkSpace] = stg1;
-
-            std::unique_lock<std::mutex> blkQueuemtxlock(blkQueuemtx);
-            blksOPSyncQueue.push_back( uintToHex(blkSpace)+stg1.substr(0, 302));
-            blkQueuemtxlock.unlock();
-                                         
-            if(typebl(stg1) == "02"){
-                stg1 = switchBlType(stg1);
-            }
-            if(typebl(stg1) == "03"){
-                stg1 = switchBlType(stg1);
-            }  
-            if(typebl(stg1) == "05"){
-                stg1 = switchBlType(stg1);
-            }
-            if(typebl(stg1) == "07"){
-                stg1 = switchBlType(stg1);
-            }           
-                                                          
-            queuetransacs[queuetransac] =  stg1;
-            //cout<<endl<<"data transac i space "<<blkSpace<<endl;
-            //cout<<endl<<"data transac res body "<<res.body<<endl;
-            transactime[blkSpace] = time(nullptr)+transacmaxtime;
-
-            //verificar que la data sea correcta
-
-            cout<<endl<<"   <===   GetDataTransac end thread 0"<<endl;
-
-            //sumar transacpendingcount
-            std::unique_lock<std::mutex> pricesingtransacCountlock(pricesingtransacCount);
-            transacpendingcount++;
-            return;                                                 
-        }
-
-        blksOP[blkSpace]= F256+F256;
-
-
-        cout<<endl<<"error no se encontro el espacio de la transaccion en la memoria"<<endl<<blksOP[blkSpace];
-        queuetransacs[queuetransac] = "handle error writing memory";
         return;
+        
     }
 
-    string stg1= shaLBB()+FromDir+ToDir+value+firm;
-
-    string firmm = LocalSigner( stg1);
+    string sign2 = LocalSigner( DataTransacJson);
 
     string PairDir = "https://" + matchMinQueueIp() + "/block";
-    cout<<endl<<"calling "+PairDir +" matchmin: pair " <<endl;
-    string jsonval = "{\"x1\": \"" + stg1 + "\", \"x2\": \"" + firmm + "\"}"; 
+    cout<<endl<<"matchmin "+PairDir<<endl;
+    string jsonval = "{\"x1\": \"" + DataTransacJson + "\", \"x2\": \"" + sign2 + "\"}"; 
 
     string response = curlpost2(PairDir, jsonval, 1000);
-
-    cout<<endl<<"debug response from matchmin block     "  <<response<<endl;
 
         if(response == "00"){
             cout<<endl<<" response error"<<endl;
             queuetransacs[queuetransac] = " response error from matchmin";
             return;
         }
-    
-        // meter match max avg de red
-        cout << endl<< "response from "+PairDir <<" : " << response << endl;
 
         if (response.length() == 64){
 
             queuetransacs[queuetransac] = response;
 
-            cout<<endl<<" debug getdatatransac thr !localhost queuetransacs[queuetransac] definition "<<queuetransacs[queuetransac]<<endl;
+            cout<<endl<<"getdatatransac thr !localhost queuetransacs[queuetransac] definition "<<queuetransacs[queuetransac]<<endl;
 
             return;
  
@@ -442,14 +145,16 @@ void getdatatransacthread1 (string queuetransac, string FromDir, string ToDir,  
         
 }
 
-void getdatatransacthread (string queuetransac, string FromDir, string ToDir,  string value, string firm){
-    cout<<endl<<"getdatatransacthread init ===========>"<<endl;
-    getdatatransacthread1 (queuetransac, FromDir,ToDir, value, firm);
-    cout<<endl<<"<============  getdatatransacthread end"<<endl;
+void getdatatransacthread(string queuetransac, string DataTransacJson){
+
+    //cout<<endl<<"getdatatransacthread init ===========>"<<endl;
+    getdatatransacthread1 (queuetransac, DataTransacJson);
+    //cout<<endl<<"<============  getdatatransacthread end"<<endl;
     extern int32_t pretransacpending;
     std::unique_lock<std::mutex> pricesingtransacCountlock(pricesingtransacCount);
     pretransacpending--;
     return;
+
 }
 
 void syncnetwork_lastblock(){
@@ -475,7 +180,7 @@ void comfirmOptrancasync(){
     while(true){
 
        // cout<<endl<<" SynccomfirmOptrancasync init ====>"<<endl;
-        if(Refactorizing||!matchminRounInit||!synced){
+        if(Refactorizing||Refactoring_internalSecu||!matchminRounInit||!synced){
             std::this_thread::sleep_for(std::chrono::seconds(3));
             continue;
         }
@@ -488,7 +193,7 @@ void comfirmOptrancasync(){
 
             if(checkTransacSync[i] == false ){
 
-                cout<<endl<<" SynccomfirmOptrancasync debug blksOPSync "<<i<<" "<<blksOPSync[i]<<endl;
+               // cout<<endl<<" SynccomfirmOptrancasync debug blksOPSync "<<i<<" "<<blksOPSync[i]<<endl;
 
                 const uint16_t blopnumb=hexToUint(blksOPSync[i].substr(0,8));
 
@@ -545,12 +250,13 @@ void comfirmOptrancasync(){
                     }
                 }
 
+                /*
                 cout<<endl<<" SynccomfirmOptrancasync debug AccSync[accR].indexed "<<AccSync[accR].indexed<<"  AccSync[acc].indexed "<<AccSync[acc].indexed<<endl;
                 cout<<endl<<" AccSync[acc].transacNumbrSync"<<AccSync[acc].transacNumbrSync<<"  AccSync[accR].transacNumbrSync "<<AccSync[accR].transacNumbrSync<<" blopnumb "<<blopnumb;
                 cout<<endl<<" AccSync[acc].transacSync "<<AccSync[acc].transacSync<<"  AccSync[accR].transacSync "<<AccSync[accR].transacSync;
                 cout<<endl<<" AccSync[acc].NumberCheck "<<AccSync[acc].NumberCheck<<"  AccSync[accR].NumberCheck "<<AccSync[accR].NumberCheck<<endl;
                 cout<<" bltype "<<bltype<<endl;
-
+                */
                 if ( AccSync[accR].indexed==true && AccSync[acc].indexed ==true 
                     &&   
                         ( (AccSync[acc].transacNumbrSync == blopnumb 
@@ -568,8 +274,6 @@ void comfirmOptrancasync(){
                         &&(bltype== "00"||bltype== "04"||bltype== "06"||bltype== "08"||bltype == "FF")) 
                         ) 
                 ){
-
-                    cout<<endl<<"debug comfirmOptransac fl2"<<endl;
 
                     if(bltype== "02"||bltype== "03"||bltype== "05"||bltype== "07"){
                         if( numberspace[blopnumb] ==false){
@@ -598,12 +302,10 @@ void comfirmOptrancasync(){
                         continue;
                     }
 
-                    cout<<endl<<" SynccomfirmOptrancasync debug flag "<<endl;
-
                     unsigned long long newbalanceL= hexToULL(readbalanceString(  blksOPSync[i].substr(8, blksOPSync[i].length()-8)  , false)) ;       
                     unsigned long long newbalanceR= hexToULL(readbalanceString(blksOPSync[i].substr(8, blksOPSync[i].length()-8)  , true)) ;   
 
-                    uint32_t Feed =   hexToInt(FeedOfTransac( blksOPSync[i].substr(8, blksOPSync[i].length()-8)  )); 
+                    uint32_t Feed =   hexToUint(FeedOfTransac( blksOPSync[i].substr(8, blksOPSync[i].length()-8)  )); 
                     
                     if(bltype== "02"){
                                          
@@ -624,8 +326,6 @@ void comfirmOptrancasync(){
                         }else{
 
                             blksOP[ blopnumb ] = blksOPSync[i].substr(8, blksOPSync[i].length()-8);
-                            cout<<endl<<"debug blksOP[ blopnumb ].size "<<blksOP[ blopnumb ].size()<<endl;
-                            cout<<endl<<"debug opsync blksOP[ blopnumb ] definition "<<blksOP[ blopnumb]+idBlckchn+shaLBB()+SHAstg(matchMinQueue())<<endl;
                             checkTransacSync[i] = true;
                             AccSync[acc].transacNumbrSync = blopnumb;
                             AccSync[acc].transacSync=true;
@@ -655,7 +355,6 @@ void comfirmOptrancasync(){
    
                         } else { 
                             blksOP[ blopnumb ] = blksOPSync[i].substr(8, blksOPSync[i].length()-8);
-                            cout<<endl<<"debug opsync blksOP[ blopnumb ] definition "<<blksOP[ blopnumb]+idBlckchn+shaLBB()+SHAstg(matchMinQueue())<<endl;
                             checkTransacSync[i] = true;
                             AccSync[acc].transacNumbrSync = blopnumb;
                             AccSync[acc].transacSync=true;
@@ -679,7 +378,6 @@ void comfirmOptrancasync(){
  
                         } else { 
                             blksOP[ blopnumb ] = blksOPSync[i].substr(8, blksOPSync[i].length()-8);
-                            cout<<endl<<"debug opsync blksOP[ blopnumb ] definition "<<blksOP[ blopnumb]+idBlckchn+shaLBB()+SHAstg(matchMinQueue())<<endl;
                             checkTransacSync[i] = true;
                             AccSync[acc].transacNumbrSync = blopnumb;
                             AccSync[acc].transacSync=true;
@@ -706,7 +404,6 @@ void comfirmOptrancasync(){
                         } else { 
 
                             blksOP[ blopnumb ] = blksOPSync[i].substr(8, blksOPSync[i].length()-8);
-                            cout<<endl<<"debug opsync blksOP[ blopnumb ] definition "<<blksOP[ blopnumb]+idBlckchn+shaLBB()+SHAstg(matchMinQueue())<<endl;
                             checkTransacSync[i] = true;
                             AccSync[acc].transacNumbrSync = blopnumb;
                             AccSync[acc].transacSync=true;
@@ -719,7 +416,6 @@ void comfirmOptrancasync(){
 
 
                     if(bltype== "00"){
-                        cout<<endl<<"debug  comfirmOptrancasync()  fl 00 ";
                         if ( switchBlType(blksOP[ blopnumb ]) ==  blksOPSync[i].substr(8, blksOPSync[i].length()-8).substr(0, 302)   ){
                             string hidden =idBlckchn+shaLBB()+ SHAstg(matchMinQueue());
                             if(FIRMCheck2( blksOPSync[i].substr(8, blksOPSync[i].length()-8).substr(0, 438) ,  hidden   )) {
@@ -731,7 +427,7 @@ void comfirmOptrancasync(){
                                 AccSync[accR].transacSync=false;
                                 AccSync[acc].value=newbalanceL;
                                 AccSync[accR].value=newbalanceR;
-                                transacscomfirmed++;
+                                transacsconfirmed++;
 
                             }else { for(int i = 0; i<5; i++){
                                 cout<<endl<<"debug error comfirmOptrancasync() FIRMCheck2 ";
@@ -745,7 +441,6 @@ void comfirmOptrancasync(){
                     }
 
                     if(bltype== "04"){
-                        cout<<endl<<"debug  comfirmOptrancasync()  fl 4 ";
                         if ( switchBlType(blksOP[ blopnumb ]) ==  blksOPSync[i].substr(8, blksOPSync[i].length()-8).substr(0, 302)   ){
                             string hidden =idBlckchn+shaLBB()+ SHAstg(matchMinQueue());
                             if(FIRMCheck2( blksOPSync[i].substr(8, blksOPSync[i].length()-8).substr(0, 438) ,  hidden   )) {
@@ -757,7 +452,7 @@ void comfirmOptrancasync(){
                                 AccSync[accR].transacSync=false;
                                 AccSync[acc].value-=newbalanceL+Feed;
                                 AccSync[accR].value+=newbalanceL;
-                                transacscomfirmed++;
+                                transacsconfirmed++;
 
                             }else { for(int i = 0; i<5; i++){
                             cout<<endl<<"debug error comfirmOptrancasync() FIRMCheck2 ";
@@ -771,7 +466,6 @@ void comfirmOptrancasync(){
                     }
 
                     if(bltype== "06"){
-                        cout<<endl<<"debug  comfirmOptrancasync()  fl6 ";
                         if ( switchBlType(blksOP[ blopnumb ]) ==  blksOPSync[i].substr(8, blksOPSync[i].length()-8).substr(0, 302)    ){
                             string hidden =idBlckchn+shaLBB()+ SHAstg(matchMinQueue());
                             if(FIRMCheck2( blksOPSync[i].substr(8, blksOPSync[i].length()-8).substr(0, 438) ,  hidden   )) {
@@ -783,7 +477,7 @@ void comfirmOptrancasync(){
                                 AccSync[accR].transacSync=false;
                                 AccSync[acc].value=newbalanceL;
                                 AccSync[accR].value+=newbalanceR;
-                                transacscomfirmed++;
+                                transacsconfirmed++;
 
                             }else { for(int i = 0; i<5; i++){
                             cout<<endl<<"debug error comfirmOptrancasync() FIRMCheck2 ";
@@ -797,7 +491,6 @@ void comfirmOptrancasync(){
                     }
 
                     if(bltype== "08"){
-                        cout<<endl<<"debug  comfirmOptrancasync()  fl4 ";
                         if ( switchBlType(blksOP[ blopnumb ]) ==  blksOPSync[i].substr(8, blksOPSync[i].length()-8).substr(0, 384)   ){
                             string hidden =idBlckchn+shaLBB()+ SHAstg(matchMinQueue());
                             if(FIRMCheck2( blksOPSync[i].substr(8, blksOPSync[i].length()-8).substr(0, 512) ,  hidden   )) {
@@ -809,7 +502,7 @@ void comfirmOptrancasync(){
                                 AccSync[accR].transacSync=false;
                                 AccSync[acc].value-=newbalanceL+Feed;
                                 AccSync[accR].value=newbalanceR;
-                                transacscomfirmed++;
+                                transacsconfirmed++;
 
                             }else { for(int i = 0; i<5; i++){
                             cout<<endl<<"debug error comfirmOptrancasync() FIRMCheck2 ";
@@ -833,11 +526,11 @@ void comfirmOptrancasync(){
 
                 WritingAccSynclock.unlock();
 
-                if (transacscomfirmed==blksize){
+                if (transacsconfirmed==blksize){
                     break;
                 } else {
-                    if(transacscomfirmed>blksize){
-                        cout<<endl<<"comfirmOptrancasync() error transacscomfirmed>blksize";
+                    if(transacsconfirmed>blksize){
+                        cout<<endl<<"comfirmOptrancasync() error transacsconfirmed>blksize";
                         exit_call();
                     }
                 }
@@ -846,18 +539,6 @@ void comfirmOptrancasync(){
 
         
         blkQueuemtxlock.unlock();
-
-        if (transacscomfirmed==blksize){
-
-            comfirmOptrancasyncRun = false;
-            refactvalidate();
-
-        } else {
-            if(transacscomfirmed>blksize){
-                cout<<endl<<"comfirmOptrancasync() error transacscomfirmed>blksize";
-                exit_call();
-            }
-        }
 
         std::unique_lock<std::mutex> WritingAccSynclock(WritingAccSync);
 
@@ -906,7 +587,9 @@ void Syncqueue(){
 
             syncqueue = true;
 
+            //Request Transaction from last retrieved to last in network
             vector<string> newblkop = blkOpSync(blksOPSync.size(),0,ShaLBBBuffered);
+
             if(newblkop[0]=="syncedToLastOp"||newblkop[0]=="RefactorizingLastBl"){
                 syncqueue=false;
                 return;
@@ -956,8 +639,6 @@ void Syncqueue(){
                 blksOPSync.push_back(newblkop[newblkint]);  
                 // ver si se peude quitar esto 
                 checkTransacSync[blksOPSync.size()-1]= false;
-                cout<<endl<<"debug opsync bucle newblksyncsize+blksyncsize  "<<newblksyncsize+blksyncsize<<endl;
-                // blksOP[ hexToInt(blksOPSync[syncOpNumbr].substr(0,8)) ] = blksOPSync[syncOpNumbr].substr(8,blksOPSync[syncOpNumbr].length()-8);
                 newblkint++;
                 syncOpNumbr++;
 
@@ -977,7 +658,7 @@ void timetransacthread(){
 
         for(int i = 0; i<maxblksize;i++){
             if (std::time(nullptr)>transactime[i] && transactime[i]!=9999&&typebl(blksOP[i])!="FF"&&typebl(blksOP[i])!="00"&& typebl(blksOP[i])!="04"&& typebl(blksOP[i])!="06"&& typebl(blksOP[i])!="08"){
-                string valuectx =  ullToHex(0);
+                uint64_t valuectx = 0;
                 if(!changeBlType(blksOP[i], "FF", valuectx)){
                     cout<<endl<<"error timetransacthread() !changeBlType(blksOP[i], FF, valuectx)"<< blksOP[i]<<" "<<valuectx;
                     exit_call();
@@ -1032,7 +713,7 @@ void AliveConnection(){
                     peerssyncblocklock.unlock();
                 }
 
-                cout<<endl<< "Logout Node "<<it->first<<endl;
+                cout<<endl<< " Node Logout"<<it->first<<endl;
                 
             } else {
                // cout<<endl<<"Its Alive OK"<<endl;
@@ -1071,7 +752,6 @@ void statusCheck(){
                     if(it->second.length() == 64){
 
                         string response = curlpost2("https://"+ matchMinQueueIp()+"/queuetransacs", it->second, 4000);
-                        cout<<endl<<"statusCheck debug response from matchmin: " << response<<endl ;
 
                         if(response == "processing"){
                             ++it; 
@@ -1123,7 +803,7 @@ void syncnetwork_matchMinRound(){
 
                     ClearOpBlks();
 
-                    cout<<endl<<" MatchMin building queue "<<endl;
+                    //cout<<endl<<" MatchMin building queue "<<endl;
                                                                   
                     //2.1
                     int timingRound2 = stoi(timing())+6;
@@ -1133,7 +813,6 @@ void syncnetwork_matchMinRound(){
                             if( matchMinBuildQueueFromNetwork() ) {
                                 shamatchinstep = 4;
                                 break;
-                                timingbl; //  this is update by matchMinBuildQueueFromNetwork()
                             }
                             continue;
                         case 0:
@@ -1162,12 +841,12 @@ void syncnetwork_matchMinRound(){
                         std::this_thread::sleep_for(std::chrono::seconds(timingRound2-timing2));
                     }
 
-                    cout<<endl<<" MatchMin Pre Round check "<<endl;
+                    //cout<<endl<<" MatchMin Pre Round check "<<endl;
                     //3.2
                     if(MatchCheckDW()){
 
                         matchminRounInit = true;
-                        cout<<endl<<" check ok"<<endl;
+                        //cout<<endl<<" check ok"<<endl;
                         std::this_thread::sleep_for(std::chrono::seconds(4));
 
                     } else{ 
@@ -1180,45 +859,9 @@ void syncnetwork_matchMinRound(){
 
                 }
 
-/*
-                //anadir 3 retrys
-                if(ShaMinInit()!=1){
-                    retries++;
-                    if(retries>2){
-                        cout<<endl<<"MatchMin network check Fail - OK"<<endl;
-
-                        std::unique_lock<std::mutex> peersMatchMinBlockmtxlock(peersMatchMinBlockmtx);
-                        peersMatchMin.clear();
-                        peersMatchMinBlockmtxlock.unlock();
-
-                        std::unique_lock<std::mutex> blkQueuemtxlock(blkQueuemtx);
-
-                        matchminRounInit=false;
-                        postRefactRoundInit = false;
-
-                        size_t blksOPSyncQueuesize= blksOPSyncQueue.size();
-                        if(BlAntIsMatch){
-                            for(int i = lastmatchsyncqueue; i<blksOPSyncQueuesize; i++ ){
-                                blksOPSyncQueue.pop_back();
-                            }
-                        } else {
-                            blksOPSyncQueue.clear();
-                        }
-                        
-                        continue;
-                    }else{
-                        std::this_thread::sleep_for(std::chrono::seconds(2));
-                        continue;
-                    }
-                } else {
-                    retries=0;
-                    cout<<endl<<"MatchMin network check Running - OK"<<endl;
-                }
-*/
-
                 if(!postRefactRoundInit&&matchminRounInit&&!Refactorizing){
-                    cout<<endl<<"Start to build New Block"<<endl;
-                    if(lastbllocalmatchsync()&&lastblDWULL==lastblockbuild()){
+                    cout<<endl<<"Construction of the new block has started"<<endl;
+                    if(lastbllocalmatchsync()&&lastblDWULL==lastblockbuilt()){
 
                         if(matchMinQueueIp() == "localhost"){
 
@@ -1237,49 +880,35 @@ void syncnetwork_matchMinRound(){
                     //cout<<endl<<"thread matchminround lastbllocalmatchsync()&&lastblDWULL==lastblockbuild() "<<matchMinQueue()<<" "<<lastblDWULL<<" "<<lastblockbuild()<<endl;
                 }
 
-                if(!Refactorizing&&matchminRounInit&&synced&&postRefactRoundInit){
+                if(!Refactorizing && !Refactoring_internalSecu && matchminRounInit && synced && postRefactRoundInit){
+
                     if (matchMinQueueIp()!= "localhost"){
                         Syncqueue();
                     }
-                    if(time(nullptr)>timingbl){
-                        cout<<"Enought Timing Block - forced refact"<<endl;
+                    if (transacsconfirmed==blksize || time(nullptr)> timingbl && !Refactorizing && !Refactoring_internalSecu){
+
+                        if( time(nullptr)> timingbl && !Refactorizing && !Refactoring_internalSecu ){
+
+                            cout<<"Enought Timing Block - forced refact"<<endl;
+
+                        } else{
+                            cout<<endl<<" transactions confirmed qtty limit reach, refact validate init called from syncnetworkThread "<<endl;
+                        }
+
                         refactvalidate();
+
+                    } else {
+                        if(transacsconfirmed>blksize){
+                            cout<<endl<<"comfirmOptrancasync() error transacsconfirmed>blksize";
+                            exit_call();
+                        }
                     }
-
-                    /*
-                    if(matchMinQueueIp() == "localhost"){
-
-                        if(MatchCheckDW()){
-                            cout<<endl<<" check ok"<<endl;
-                        } else{ 
-
-                            std::unique_lock<std::mutex> peersMatchMinBlockmtxlock(peersMatchMinBlockmtx);
-                            peersMatchMin.clear();
-                            peersMatchMinBlockmtxlock.unlock();
-                            std::unique_lock<std::mutex> blkQueuemtxlock(blkQueuemtx);
-                            matchminRounInit=false;
-                            postRefactRoundInit = false;
-                            size_t blksOPSyncQueuesize= blksOPSyncQueue.size();
-                            if(BlAntIsMatch){
-                                for(int i = lastmatchsyncqueue; i<blksOPSyncQueuesize; i++ ){
-                                    blksOPSyncQueue.pop_back();
-                                }
-                            } else {
-                                blksOPSyncQueue.clear();
-                            }
-                            cout<<endl<<"check fail"<<endl;
-                            std::this_thread::sleep_for(std::chrono::seconds(1));
-                            continue;
-                        }   
-                        
-                    }
-                    */
                 }
 
                 if(syncinterval ==3){
 
                     if(MatchCheckDW() ){
-                        cout<<endl<<" check ok"<<endl;
+                        //cout<<endl<<" check ok"<<endl;
                     } else{ 
 
                         cout<<endl<<"MatchMin network check Fail "<<endl;

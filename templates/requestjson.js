@@ -49,7 +49,7 @@ async function clicsearch() {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ "resourse": form2, "b": 2 })
+    body: JSON.stringify({ "resource": form2, "b": 2 })
 })
 .then(response => response.text())
 .then(data => document.getElementById("response").innerHTML = data)
@@ -68,7 +68,7 @@ async function MakeWallet() {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ "resourse": form2, "b": 2 })
+    body: JSON.stringify({ "resource": form2, "b": 2 })
 })
 .then(response => response.text())
 .then(data => document.getElementById("response").innerHTML = data)
@@ -87,7 +87,7 @@ async function balance() {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ "resourse": form2, "b": 2 })
+    body: JSON.stringify({ "resource": form2, "b": 2 })
 })
 .then(response => response.text())
 .then(data => document.getElementById("response").innerHTML = parseInt(Number("0x"+data), 10))
@@ -128,7 +128,7 @@ async function blocksearch() {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ "resourse": form2, "b": 2 })
+    body: JSON.stringify({ "resource": form2, "b": 2 })
 })
 .then(response => response.text())
 .then(data => {
@@ -154,7 +154,7 @@ async function DataTransacIndex(typeIndex) {
   document.getElementById("response").innerHTML = "buscando";
   console.log("debug form3 "+form3)
 
-  fetch(serverurl+"/DataTransacIndex", {
+  fetch(serverurl+"/IndexTransaction", {
     method: 'POST',
     headers: {
         'Accept': 'application/json',

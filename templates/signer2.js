@@ -271,10 +271,11 @@
 
     async  function SignTransac() {
 
+	  var v= "00";
       var w= derive(document.getElementById("myForm").elements[0].value).toUpperCase();
       var x = document.getElementById("myForm").elements[3].value.toUpperCase();
       var y = ullToHex(parseInt(document.getElementById("myForm").elements[4].value, 10)).toUpperCase();
-      var z = singAndCheck(document.getElementById("myForm").elements[0].value,document.getElementById("ShaLBB").textContent+w+x+y ).toUpperCase()
+      var z = singAndCheck(document.getElementById("myForm").elements[0].value,document.getElementById("ShaLBB").textContent+v+w+x+y ).toUpperCase()
 
       if(!HexCheck(x)){
         console.log(document.getElementById("ShaLBB").textContent+w+x+y+z);
@@ -294,7 +295,7 @@
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ "w": w, "x": x, "y": y,"z":z })
+        body: JSON.stringify({ "v": v,"w": w, "x": x, "y": y,"z":z })
       }).then(response => response.text()).then(data => {
         document.getElementById("response").innerHTML = data;
         console.log("response from getdatatransac" + data)
@@ -306,6 +307,45 @@
       })
       .catch(error => console.log(error));
     }
+
+    async  function SignTransac0A() {
+
+        var v= "0A";
+        var w= derive(document.getElementById("myForm").elements[0].value).toUpperCase();
+        var x = document.getElementById("myForm").elements[3].value.toUpperCase();
+        var y = ullToHex(parseInt(document.getElementById("myForm").elements[4].value, 10)).toUpperCase();
+        var z = singAndCheck(document.getElementById("myForm").elements[0].value,document.getElementById("ShaLBB").textContent+v+w+x+y ).toUpperCase()
+  
+        if(!HexCheck(x)){
+          console.log(document.getElementById("ShaLBB").textContent+w+x+y+z);
+          return "BadAddres"}
+  
+        if(!HexCheck(y)){
+          console.log(document.getElementById("ShaLBB").textContent+w+x+y+z);
+          return "BadAddres"}
+  
+        console.log(document.getElementById("ShaLBB").textContent+w+x+y+z);
+      
+        document.getElementById("response").innerHTML = "buscando";
+        
+        await fetch(serverurl+"/GetDataTransac", {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ "v": v,"w": w, "x": x, "y": y,"z":z })
+        }).then(response => response.text()).then(data => {
+          document.getElementById("response").innerHTML = data;
+          console.log("response from getdatatransac" + data)
+          console.log( data.length)
+          if(data.length == 64){
+            reqtransacs.push(data);
+            console.log("sign transac reqtransacs " + reqtransacs.length)
+          }
+        })
+        .catch(error => console.log(error));
+      }
 
     async  function SendTransac(x){
     
@@ -398,7 +438,7 @@
 
             console.log("respuesta "+ index+" "+respuesta.length);
 
-            if (respuesta.length === 494) {
+            if (respuesta.length === 494 || respuesta.length === 422 ) {
               document.getElementById("response").innerHTML = respuesta;
               var sigg = singAndCheck(document.getElementById("myForm").elements[0].value, respuesta);
               var data2 = respuesta + sigg;

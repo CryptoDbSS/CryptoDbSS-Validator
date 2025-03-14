@@ -1,30 +1,46 @@
-/*
- * Software Name: CryptoDbSS
+/*******************************************************************************
+
+ * This notice, including the copyright notice and permission notice, 
+ * must be retained in all copies or substantial portions of the Software and 
+ * in all derivative works.
+ *
+ * Software Name: CryptoDbSS-Validator
  * Copyright (C) 2025 Steeven J Salazar.
  * License: CryptoDbSS: Software Review and Audit License
  * 
- * https://github.com/Steeven512/CryptoDbSS
+ * https://github.com/CryptoDbSS/CryptoDbSS-Validator
  *
- * IMPORTANT: Before using, compiling or do anything with this software, 
- * you must read and accept the terms of this License.
+ * IMPORTANT: Before using, compiling, or doing anything with this software,
+ * you must read and accept the terms of the License provided with this software.
+ *
+ * If you do not have a copy of the License, you can obtain it at the following link:
+ * https://github.com/CryptoDbSS/CryptoDbSS-Validator/blob/main/LICENSE.md
+ *
+ * By using, compiling, or modifying this software, you implicitly accept
+ * the terms of the License. If you do not agree with the terms,
+ * do not use, compile, or modify this software.
  * 
  * This software is provided "as is," without warranty of any kind.
  * For more details, see the LICENSE file.
- */
+
+********************************************************************************/
 
 
-/* 
+/* ********************************************************************************
  
-The CryptoDbSS, blockchain-core, consensus, protocols and misc.
+    The CryptoDbSS, blockchain-core, consensus, protocols and misc.
 
-This software is a prototype version, it should only be used for 
-development, testing, study and auditing proporses. 
+    This software is a review and audit release, it should only be used for 
+    development, testing, education and auditing purposes. 
 
-Third-party dependencies: CrowCpp, Crypto++, OpenSSL, Boost, ASIO, libcurl.
+    Third-party dependencies: CrowCpp, Crypto++, OpenSSL, Boost, ASIO, libcurl.
 
-questions, suggestions or contact : Steevenjavier@gmail.com
+    questions, suggestions or contact : Steevenjavier@gmail.com
 
-*/
+                                S.S
+
+*********************************************************************************/
+
 
 #ifndef CryptoDbSS_H
 #define CryptoDbSS_H
@@ -49,33 +65,29 @@ questions, suggestions or contact : Steevenjavier@gmail.com
 
 #include "codec.h"
 #include "key.h"
-
 #include "strucc.h"
-
 #include "compresion.h"
 #include "firewall.h"
-
 #include "setnod.h"
 #include "hasher.h"
-
-
 #include "func.h"
 #include "blockreader.h"
 #include "IndexingEngine.h"
-
 #include "match.h"
 #include "transacALG.h"
-
 #include "peersasync.h"
 #include "threadsdw.h"
+#include "TransactionType.h"
+#include "serverFunc.h"
 
 using namespace std;
 
+const string version = "MVP_0.0.1";
 const string idblockchainName = "CDB256SS::TEST-BLOCKCHAIN";
 vector<unsigned char> IdBlkchain = sha3_256v(stringToBytes(idblockchainName));
 const string idBlckchn = vectorstring(IdBlkchain);
 
-uint64_t lastbl = lastblockbuild();
+uint64_t lastbl = lastblockbuilt();
 uint16_t blksize = maxblks();
 const uint16_t maxblksize = 65534;// <= 65534
 uint16_t maxCompPoint = 2; // maxCompPoint <= 65534
@@ -98,14 +110,14 @@ bool syncqueue = false;
 bool matchminRounInit = false;
 bool comfirmOptrancasyncRun=false;
 bool statusCheckRun=false;
-bool lastblockbuildBlock=false;
+bool lastblockbuiltBlock=false;
 bool postRefactRoundInit = false;
 bool refactSHA = false;
 bool Refactorizing;
 unsigned long long lastblDWULL;
 uint syncOpNumbr = 0;
 
-int32_t transacscomfirmed = 0;
+int32_t transacsconfirmed = 0;
 int32_t transacpendingcount = 0;
 int32_t pretransacpending = 0;
 
@@ -165,7 +177,7 @@ map<uint16_t,bool> numberspace;
 map<string ,string> matchminSortRound;
 map<string,nodeStruct> Nodes;
 string shaMatchMinproposal = "";
-bool matchminbuilded = false;
+bool matchminbuilt = false;
 bool shaMatchMinproposalReveled = false;
 string matchminsorted = "";
 string matchminProposalArrengelStr = "" ;
@@ -188,12 +200,6 @@ uint blocksearch=64;
 uint status=1200;
 bool firewallcheck;
 
-//////////////////////////
-// debug var
-
-
-
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int listener(){
@@ -205,11 +211,12 @@ int listener(){
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //node login
+    
     CROW_ROUTE(app, "/pair").methods("POST"_method)([](const crow::request &req, crow::response &res){
 
     string nodeId = req.body;
     res.set_header("Content-Type", "text/plain");
-    for (auto &acc : nodeId) {acc = std::toupper(acc); }
+    for (auto &acc : nodeId) {acc = toupper(acc); }
     string ip = req.remote_ip_address; 
     string fw=firewall(ip, "loginAlg");
 
@@ -218,11 +225,11 @@ int listener(){
         vector<uint8_t> byteArray = stringToBytes(nodeId);
 
         filesystem::path directory = "peer/PublicNode/";
-        for (const auto &entry : std::filesystem::directory_iterator(directory)){
+        for (const auto &entry : filesystem::directory_iterator(directory)){
             if(entry.is_regular_file()){
 
                 string nodeDir = entry.path().filename().string();
-                for (auto &acc : nodeDir) {acc = std::toupper(acc); }
+                for (auto &acc : nodeDir) {acc = toupper(acc); }
                 string localNodeId = SHAstg(nodeDir);
                 
                 if(localNodeId==nodeId.substr(0,64)){
@@ -248,7 +255,7 @@ int listener(){
                         string sig =LocalSigner(msg);
                         string responser = msg+"00"+sig;
 
-                        for (const auto &entry2 : std::filesystem::directory_iterator("peer")){
+                        for (const auto &entry2 : filesystem::directory_iterator("peer")){
                             if (entry2.is_regular_file()){
                                 ifstream archivo2(entry2.path());
                                 if (archivo2.is_open()){
@@ -264,14 +271,14 @@ int listener(){
                         }
                                         
                         ofstream filew("peer/"+ip+":18090" , ios::binary | ios::out);
-                        if (!filew){std::cout<<"error al abrir la Db de dirs"; return res.end(); }
+                        if (!filew){cout<<"error al abrir la Db de dirs"; return res.end(); }
                         for (unsigned int i = 0; i < byteArray.size(); i++) { 
                             filew.seekp(i); 
                             filew.put(byteArray[i]); 
                         }
                         filew.close();
 
-                        std::string stringread = bytesToString(readFile("peer/"+ip+":18090"));
+                        string stringread = bytesToString(readFile("peer/"+ip+":18090"));
 
                         if(loginPeer(nodeDir,ip)){
                             cout<<endl<<" peer logged: "<<ip<< " - "<<nodeDir;
@@ -314,7 +321,7 @@ int listener(){
             if(nodeId.substr(0,130)==ipDir(ipport)){
 
                 res.set_header("Content-Type", "text/plain");
-                for (auto &acc : nodeId) {acc = std::toupper(acc);}
+                for (auto &acc : nodeId) {acc = toupper(acc);}
                 if(!HexCheck(nodeId)){
                 res.body = "Bad_Format_1";
                 return res.end(); }
@@ -377,7 +384,7 @@ int listener(){
             }
 
             if(reqbody == "blRefactHash"){
-               std::unique_lock<std::mutex> blRefactHashedBlockmtxlock(blRefactHashedBlockmtx);
+               unique_lock<mutex> blRefactHashedBlockmtxlock(blRefactHashedBlockmtx);
                 string blrefacthashedstr = bytesToString(blRefactHashed);
                 return crow::response(blrefacthashedstr);
             }
@@ -391,7 +398,7 @@ int listener(){
             if(reqbody == "SHA"){
 
                 string peersstring="";
-                std::unique_lock<std::mutex> peersMatchMinBlockmtxlock(peersMatchMinBlockmtx);
+                unique_lock<mutex> peersMatchMinBlockmtxlock(peersMatchMinBlockmtx);
                 for(int i =0; i<peersMatchMin.size();i++  ){
                     peersstring+=peersMatchMin[i];
                 }
@@ -418,7 +425,7 @@ int listener(){
 
             if(reqbody == "Dir"){
                 vector<string> peersstring;
-                std::unique_lock<std::mutex> peersMatchMinBlockmtxlock(peersMatchMinBlockmtx);
+                unique_lock<mutex> peersMatchMinBlockmtxlock(peersMatchMinBlockmtx);
                 for(int i =0; i<peersMatchMin.size();i++  ){
                     peersstring.push_back(peersMatchMin[i]);
                 } cout<<endl;
@@ -466,7 +473,7 @@ int listener(){
                             
                             string elementquery = "noreadyet "+ to_string(shamatchinstep) ;
 
-                            if(shaMatchMinproposal.length() == 64 && matchminbuilded){
+                            if(shaMatchMinproposal.length() == 64 && matchminbuilt){
 
                                 shaMatchMinproposalReveled =true;
                                 elementquery = shaMatchMinproposal;
@@ -514,7 +521,7 @@ int listener(){
                         if( lastbl == shaquery &&lastblDWULL == shaquery ){
                             elementquery = "noreadyet "+to_string(shamatchinstep);
 
-                            std::unique_lock<std::mutex> peerssyncblocklock(peerssyncblock);
+                            unique_lock<mutex> peerssyncblocklock(peerssyncblock);
                             if ( matchminsorted.length()> 63){
                                 elementquery= SHAstg(matchminsorted);
                             }
@@ -527,7 +534,7 @@ int listener(){
                     return crow::response(response); 
                 }
 
-            } catch (const std::exception& e) {
+            } catch (const exception& e) {
 
             }
 
@@ -541,7 +548,7 @@ int listener(){
 
     if( fw == "true"){
 
-        std::unique_lock<std::mutex> peerssyncblocklock(peerssyncblock);\
+        unique_lock<mutex> peerssyncblocklock(peerssyncblock);\
         auto Nodes2 = Nodes;
         peerssyncblocklock.unlock();
 
@@ -549,7 +556,7 @@ int listener(){
         if (iter != Nodes.end()){
 
             string pass = req.body;
-            string lblocal = ullToHex(lastblockbuild());
+            string lblocal = ullToHex(lastblockbuilt());
             string firm = LocalSigner(pass+lblocal);
 
             res.body = lblocal+firm;
@@ -559,105 +566,26 @@ int listener(){
 
     });
 
-//  per ip 60
+    //  per ip 60
     
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Transac algoritm
     // 
 
     CROW_ROUTE(app, "/GetDataTransac").methods("POST"_method)([](const crow::request &req, crow::response &res){
 
-        cout << endl << "getdatatransac call =====>"<<endl;
-
         // allow
         //////////////////////////////////////////////////////////////////////////////
        
         string fw=firewall(req.remote_ip_address, "transcAlg");
 
+        res.set_header("Content-Type", "text/plain");
+
         if( fw == "true"){
 
-            if((OnlyLocalApi &&req.remote_ip_address=="127.0.0.1")||!OnlyLocalApi){
+           res.body =  GetDataTransac(req.body, req.remote_ip_address );
+            return res.end(); 
 
-                if(!synced||!matchminRounInit||!postRefactRoundInit){
-                    cout<<endl<<" synced "<<synced<< " matchminRounInit "<<matchminRounInit<<" postRefactRoundInit "<<postRefactRoundInit<<endl;
-                    res.set_header("Content-Type", "text/plain");
-                    res.body = "syncing network";
-                    return res.end();
-                }
-
-                auto x = crow::json::load(req.body);
-                if (!x) {
-                    res.set_header("Content-Type", "text/plain");
-                    res.body = "Bad Format";
-                    return res.end();
-                }
-
-                string FromDir = x["w"].s();
-                string ToDir = x["x"].s();
-                string value = x["y"].s();
-                string firm = x["z"].s();
-
-                if(FromDir.length()!=130 ||ToDir.length()!=130 ||value.length()!=16||firm.length()!=128||!HexCheck(FromDir)|!HexCheck(ToDir)|!HexCheck(value)|!HexCheck(firm)  ){
-                    res.set_header("Content-Type", "text/plain");
-                    res.body = "data transac invalid";
-                    return res.end();
-                }
-
-                if( !verifySignature( shaLBB()+FromDir+ToDir+value,  firm ,  loadPublicKey(FromDir.substr(2 , 128))) ){
-                    res.set_header("Content-Type", "text/plain");
-                    res.body = "Invalid Firm from user! ";
-                    return res.end();
-                }
-
-                std::unique_lock<std::mutex> pricesingtransacCountlock(pricesingtransacCount);
-                pretransacpending++;
-
-                if (Refactorizing) {
-                    res.body = "Refactorizing new block please wait a moment and try again";
-                    pretransacpending--;
-                    res.set_header("Content-Type", "text/plain");
-                    res.end();
-                }
-
-
-                if ( pretransacpending + transacpendingcount + transacscomfirmed >blksize) {
-                    pretransacpending--;
-                    res.body = "please wait a moment and try again";
-                    res.set_header("Content-Type", "text/plain");
-                    res.end();
-                }
-
-                pricesingtransacCountlock.unlock();
-                string queuetransac = random32Hex(); 
-                cout<<endl<<"debug get data transac, llave asignada a la transaccion "<< queuetransac;
-                cout<<endl<<"debug get data transac, acc "<< FromDir;
-
-                std::unique_lock<std::mutex> queuetransacsmtxlock(queuetransacsmtx);
-                queuetransacs[queuetransac] = "processing";
-                queuetransacsmtxlock.unlock();
-                
-                res.body = queuetransac;
-                thread getdatatransacthr(getdatatransacthread, queuetransac, FromDir, ToDir, value, firm);
-                getdatatransacthr.detach();
-
-                std::unique_lock<std::mutex> queueIpMtxlock(queueIpMtx);
-                bool checkip = false;
-                for(int i = 0; i<queueIp.size(); i++){
-                    if(queueIp[i]==req.remote_ip_address){
-                        checkip=true;
-                    }
-                }
-                if(!checkip){
-                    queueIp.push_back(req.remote_ip_address);
-                }
-                
-                cout << endl << " <===== getdatatransac" << endl;
-                return res.end();
-            }
-        
-            cout<<endl<<"ignorando request"<<endl;
-            return res.end();
         }
 
         res.body = fw;
@@ -667,14 +595,7 @@ int listener(){
     });
     CROW_ROUTE(app, "/block").methods("POST"_method)([](const crow::request &req, crow::response &res){
 
-        auto x = crow::json::load(req.body);
-        if (!x) {
-            res.set_header("Content-Type", "text/plain");
-            res.body = "Bad Format";
-            return res.end();
-        }
 
-        string ip = req.remote_ip_address; 
         res.set_header("Content-Type", "text/plain");
         // allow
         //////////////////////////////////////////////////////////////////////////////
@@ -683,93 +604,8 @@ int listener(){
 
         if( fw == "true"){
 
-                    if( matchMinQueueIp()!="localhost"){return res.end();}
-
-                
-                    string stg1 = x["x1"].s();
-                    string FromDir=stg1.substr(64,130);
-                    string ToDir=stg1.substr(194,130);
-                    string value=stg1.substr(324,16);
-                    string firm=stg1.substr(340,128);
-
-                    if(FromDir.length()!=130 ||ToDir.length()!=130 ||value.length()!=16||firm.length()!=128||!HexCheck(FromDir)|!HexCheck(ToDir)|!HexCheck(value)|!HexCheck(firm)  ){
-                        
-                        res.body = "data transac invalid";
-                        return res.end();
-                    }
-
-                    if( !verifySignature(shaLBB()+FromDir+ToDir+value,  firm ,  loadPublicKey(FromDir.substr(2 , 128))) ){
-                       
-                        res.body = "Invalid Firm!";
-                        return res.end();
-                    }
-
-                    if( !verifySignature(x["x1"].s(), x["x2"].s() ,  loadPublicKey(ipDir(ip).substr(2 , 128))) ){
-                        
-                        res.body = "Invalid Firm 2!";
-                        return res.end();
-                    }
-
-                    if (Refactorizing) {
-                        res.body = "Refactorizing new block please wait";
-                 
-                        res.end();
-                    }
-
-                    if(!synced||!matchminRounInit||!postRefactRoundInit){
-                        
-                        res.body = "syncing network";
-                        return res.end();
-                    }
-
-
-                    pretransacpending++;
-                    
-                    if ( pretransacpending + transacpendingcount + transacscomfirmed >blksize) {
-                        pretransacpending--;
-                        res.body = "please wait a moment and try again";
-                    
-                        res.end();
-                    }
-                    
-                    if( matchMinQueueIp()!="localhost"){
-                        res.body = "matchMinQueueIp()!=localhost";
-                        pretransacpending--;
-                        return res.end();
-                    }
-
-                
-
-
-            /////////////////////////////////////////////////////////////////////////////
-
-                    string queuetransac = random32Hex(); 
-                    cout<<endl<<"debug get data transac, llave asignada a la transaccion "<< queuetransac;
-                    std::unique_lock<std::mutex> queuetransacsmtxlock(queuetransacsmtx);
-                    queuetransacs[queuetransac] = "processing";
-                    queuetransacsmtxlock.unlock();
-                    res.body = queuetransac;
-                    thread getdatatransacthr(getdatatransacthread, queuetransac, FromDir, ToDir, value, firm);
-                    getdatatransacthr.detach();
-                    std::unique_lock<std::mutex> queueIpMtxlock(queueIpMtx);
-                    bool checkip = false;
-                    for(int i = 0; i<queueIp.size(); i++){
-                        if(queueIp[i]==req.remote_ip_address){
-                            checkip=true;
-                        }
-                    }
-                    if(!checkip){
-                        queueIp.push_back(req.remote_ip_address);
-                    }
-
-                    return res.end();
-                
-        
-
-            
-            res.body = "/block Unautorized_call";
-            cout<<endl<<"ignorando request"<<endl;
-            return res.end();
+            res.body =  GetDataTransacAuth(req.body, req.remote_ip_address );
+            return res.end(); 
 
         }
         
@@ -779,141 +615,16 @@ int listener(){
     });
     CROW_ROUTE(app, "/TransacSignedPost").methods("POST"_method)([](const crow::request &req, crow::response &res){
 
-        cout << endl << "transacSignedPost call =====>"<<endl;
+       // cout << endl << "transacSignedPost call =====>"<<endl;
+
+        res.set_header("Content-Type", "text/plain");
 
         string fw=firewall(req.remote_ip_address, "transcAlg");
 
         if( fw == "true"){
 
-            auto x = crow::json::load(req.body);
-    
-            if(!synced||!matchminRounInit||!postRefactRoundInit){
-                res.set_header("Content-Type", "text/plain");
-                res.body = "syncing network";
-                return res.end();
-            }
-            if (Refactorizing) {
-                res.body = "Refactorizing new block please wait";
-                res.set_header("Content-Type", "text/plain");
-                res.end();
-            }
-
-            std::unique_lock<std::mutex> pricesingtransacCountlock(pricesingtransacCount);
-
-            
-            if (transacpendingcount>blksize) {
-                    res.body = "please wait a moment and try again";
-                    res.set_header("Content-Type", "text/plain");
-                    res.end();
-            }
-            
-
-           pricesingtransacCountlock.unlock();
-
-            if (!x){
-                res.set_header("Content-Type", "text/plain");
-                res.body = "Format data invalid";
-                return res.end();
-            }
-            string straddrs = x["x"].s();
-            
-            string stg1;
-            int savedtimetransactime;
-
-            /*
-            cout<<endl<<"transagpost straddrs "<<straddrs.length()<<endl;
-            cout<<endl<<"transagpost hexToInt(blOpNmbr(straddrs)) "<<hexToInt(blOpNmbr(straddrs))<<endl;
-            cout<<blksOP[hexToInt(blOpNmbr(straddrs))-1]<<endl;
-
-            cout<<endl<<"transagpost witchBlType(blksOP[hexToInt(blOpNmbr(straddrs))-1]) "<<switchBlType(blksOP[hexToInt(blOpNmbr(straddrs))-1])<<endl;
-            
-            cout<<endl<<"transagpost blksOP[hexToInt(blOpNmbr(straddrs))-1] "<<blksOP[hexToInt(blOpNmbr(straddrs))-1]<<endl;
-            cout<<endl<<"transagpost  straddrs.substr(0, 576) "<< straddrs.substr(0, 576)<<endl;
-            */
-
-            if (straddrs.length() != 622) {
-                res.body ="DataTransac transacsignedpost - error !length : "+ straddrs;
-                cout<<endl<<"DataTransac error !length : "<<straddrs.length()<<"   "<<straddrs<<endl;
-                res.set_header("Content-Type", "text/plain");
-                return res.end();
-            }
-
-            string MatchminDir = matchMinQueueIp();
-
-            if( MatchminDir != "localhost"){
-
-                std::unique_lock<std::mutex> MatchminTransacsmtxlock(MatchminTransacsmtx);
-                for(uint i = 0 ; i < MatchminTransacs.size() ; i++){
-                    if(MatchminTransacs[i] == straddrs.substr(0,494)){
-                        string PairDir;
-                        PairDir = "https://" +  matchMinQueueIp() + "/TransacSignedPost";
-                        string response = curlpost2(PairDir, req.body, 1000);
-                        if (response.substr(0, 7) == "SUCESS!"){
-                            res.set_header("Content-Type", "text/plain");
-                            res.body = response;
-                            return res.end();
-                        } else {
-                            res.body = "the transaction from matchmin is fail :( "+response ;
-                            return res.end();
-                        }
-                    }
-                }
-
-                res.body = "transac not found ";
-                return res.end();
-
-            } else { 
-                if( MatchminDir == "unavailable"){
-                    res.body = "MatchMin is unavailable ";
-                    return res.end();
-                }
-            }
-
-            std::unique_lock<std::mutex> writingspacelock(writingspace);
-
-           // cout<<endl<<"debug transac signed post switchBlType(blksOP[hexToInt(blOpNmbr(straddrs))-1]) == straddrs.substr(0, 494) " <<switchBlType(blksOP[hexToInt(blOpNmbr(straddrs))-1]).length()<<endl<<switchBlType(blksOP[hexToInt(blOpNmbr(straddrs))-1])<<endl<<straddrs.substr(0, 494)<<endl;
-
-            if( switchBlType(blksOP[hexToInt(blOpNmbr(straddrs))-1]) == straddrs.substr(0, 494) &&(typebl(straddrs)== "00"||typebl(straddrs)== "04"||typebl(straddrs)== "06"||typebl(straddrs)== "08" )){                      
-            
-                res.set_header("Content-Type", "text/plain");
-
-                if ( matchMinQueueIp() == "localhost"){
-
-                    savedtimetransactime = transactime[ hexToInt(blOpNmbr(straddrs))-1];
-                    transactime[ hexToInt(blOpNmbr(straddrs))-1] = 9999;
-
-                    if (  blksOP[hexToInt ( blOpNmbr(x["x"].s()))-1] == F256 ){
-                        transactime[ hexToInt(blOpNmbr(straddrs))-1] = savedtimetransactime;
-                        res.body= "transac fail or timeout";
-                    }
-
-                    writingspacelock.unlock();
-                    stg1 =  SignedTransac0002(x["x"].s());
-                    res.body = stg1;
-                    cout<<endl<<"debug posttransac "<<stg1<<endl;
-                    if (stg1.substr(0, 7) == "SUCESS!"){
-                        return res.end();
-                    }
-
-                    writingspacelock.lock();
-                    
-                    transactime[ hexToInt(blOpNmbr(straddrs))-1] = savedtimetransactime;  
-
-                    return res.end();
-                }
-                
-                else{
-
-
-                }
-            }
-
-
-            res.set_header("Content-Type", "text/plain");
-            cout<<endl<<" last cond fail tansac number : "<<hexToInt(blOpNmbr(straddrs))-1<<endl;
-            cout<<endl<<blksOP[hexToInt(blOpNmbr(straddrs))-1]<<endl<<endl<<straddrs.substr(0, 494)<<endl;
-            res.body = "fail transac ";
-            return res.end();
+            res.body = TransacSignedPost(req.body, req.remote_ip_address);
+            return res.end(); 
         }
 
         res.body = fw;
@@ -927,7 +638,7 @@ int listener(){
     // 64 x min
     CROW_ROUTE(app, "/queuetransacs").methods("POST"_method)([](const crow::request &req, crow::response &res){
 
-        cout<<endl<<"callig queuetransacs debug =====>";
+        //cout<<endl<<"callig queuetransacs debug =====>";
 
         // allow
         //////////////////////////////////////////////////////////////////////////////
@@ -945,7 +656,7 @@ int listener(){
 
             string stg1 = req.body;
 
-            cout<<endl<<"debug /queuetransacs req.body "<<req.body.length()<< " "<< req.body<<endl;
+            //cout<<endl<<"debug /queuetransacs req.body "<<req.body.length()<< " "<< req.body<<endl;
 
             //verificar si reqbody es compatible con length
             if(!HexCheck(req.body)|| stg1.length() != 64){
@@ -954,7 +665,7 @@ int listener(){
                 res.set_header("Content-Type", "text/plain");
                 res.end();
             }
-            std::unique_lock<std::mutex> queueIpMtxlock(queueIpMtx);
+            unique_lock<mutex> queueIpMtxlock(queueIpMtx);
             bool checkip;
             for(int i = 0; i<queueIp.size(); i++){
               
@@ -970,7 +681,7 @@ int listener(){
                 res.end();
             }
 
-            std::unique_lock<std::mutex> queuetransacsmtxlock(queuetransacsmtx);
+            unique_lock<mutex> queuetransacsmtxlock(queuetransacsmtx);
 
             auto it = queuetransacs.find(req.body);
             if (it != queuetransacs.end()) {
@@ -995,16 +706,16 @@ int listener(){
 
             if(queuetransacs[req.body].length() != 64 ){
 
-                if (queuetransacs[req.body].length() == 494) {
-                    std::unique_lock<std::mutex> MatchminTransacsmtxlock(MatchminTransacsmtx);
+                if (preDatalengthIsValid(queuetransacs[req.body])) {
+                    unique_lock<mutex> MatchminTransacsmtxlock(MatchminTransacsmtx);
                     MatchminTransacs.push_back(res.body);
                 }
 
-                cout<<endl<<"erasing queuetransacs element- id: "<<req.body<<endl;
+               //cout<<endl<<"erasing queuetransacs element- id: "<<req.body<<endl;
                 queuetransacs.erase(req.body);
             }
 
-            cout<<endl<<"queuetransacs[res.body] response : "<<res.body<<endl;
+           // cout<<endl<<"queuetransacs[res.body] response : "<<res.body<<endl;
         
             return res.end();
         }
@@ -1024,7 +735,7 @@ int listener(){
 
         if( fw == "true"){
 
-            std::unique_lock<std::mutex> peerssyncblocklock(peerssyncblock);
+            unique_lock<mutex> peerssyncblocklock(peerssyncblock);
             auto Nodes2 = Nodes;
             peerssyncblocklock.unlock();
 
@@ -1040,13 +751,13 @@ int listener(){
                         return crow::response("RefactorizingLastBl"); 
                     }
 
-                    std::unique_lock<std::mutex> blkQueuemtxlock(blkQueuemtx);
+                    unique_lock<mutex> blkQueuemtxlock(blkQueuemtx);
 
                     if(blksOPSyncQueue.size()<1){
                         return crow::response("Node Matchmin is syncing"); 
                     }
 
-                   std::unique_lock<std::mutex> queuReqmtxlock(queuReqmtx);
+                   unique_lock<mutex> queuReqmtxlock(queuReqmtx);
 
                     if( (matchMinQueue() == publicDirNode || BlAntIsMatch) ){
 
@@ -1064,7 +775,7 @@ int listener(){
                         }
 
                         uint64_t  nodelbi = Nodes2[it->first].lastblLocal;     
-                        uint64_t lbl = lastblockbuild();   
+                        uint64_t lbl = lastblockbuilt();   
 
                         if( nodelbi == lbl&& !BlAntIsMatch){
 
@@ -1212,7 +923,7 @@ int listener(){
                 int localtimestg= stoi(timing());
 
                 if(data.length()!=90 ||sign.length()!=128|| localtimestg>clientTiming+300 ||localtimestg<clientTiming-300||!HexCheck(data)  ){
-                    res.body = "data transac invalid";
+                    res.body = "data transaction is invalid";
                     return res.end();
                 }
 
@@ -1225,7 +936,7 @@ int listener(){
                     return res.end();
                 }
 
-                std::unique_lock<std::mutex> peerssyncblocklock(peerssyncblock);
+                unique_lock<mutex> peerssyncblocklock(peerssyncblock);
                 Nodes[ipdir].lastblLocal = hexToULL(data.substr(0,16));
                 res.body = "STATUS_OK";
                 return res.end();
@@ -1314,9 +1025,6 @@ int listener(){
         return crow::response(fw);
     });
 
-
-// total 150 x min
-
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Front User serve html/js & misc
     // 
@@ -1393,9 +1101,9 @@ int listener(){
         crow::response res;
       
         if( fw == "true"){ 
-            std::ifstream file("templates/requestjson.js");
+            ifstream file("templates/requestjson.js");
             if (file.is_open()) {
-            std::stringstream buffer;
+            stringstream buffer;
             buffer << file.rdbuf();
             file.close();
             res.add_header("Content-Type", "application/javascript");
@@ -1404,37 +1112,6 @@ int listener(){
             } else {
             res.code = 500; 
             res.write("Error al cargar el archivo JavaScript");
-            }
-
-            return res;
-
-        } 
-        res.write(fw);
-        return res; 
-
-    });
-    CROW_ROUTE(app, "/80:localhost:18090")([](const crow::request &req){
-        string fw=firewall(req.remote_ip_address, "front");
-        crow::response res;
-      
-        if( fw == "true"){ 
-
-            // Lee el contenido del archivo JavaScript
-            std::ifstream file("templates/80:localhost:18090");
-            if (file.is_open()) {
-            std::stringstream buffer;
-            buffer << file.rdbuf();
-            file.close();
-
-            // Establece el tipo MIME como JavaScript
-            res.add_header("Content-Type", "text/plain");
-
-            // Escribe el contenido del archivo en la respuesta
-            res.write(buffer.str());
-            } else {
-            // Maneja el caso en el que no se pueda abrir el archivo
-            res.code = 500; // Código de estado de error interno del servidor
-            res.write("Error loading resource");
             }
 
             return res;
@@ -1454,17 +1131,6 @@ int listener(){
         crow::mustache::context ctx;
         return crow::mustache::load_text(fw);
     });
-    CROW_ROUTE(app, "/bootstrap.min.css")([](const crow::request &req){
-
-        string fw=firewall(req.remote_ip_address, "front");
-        if( fw == "true"){ 
-            crow::mustache::context ctx;
-            return crow::mustache::load_text("bootstrap.min.css");
-        } 
-        crow::mustache::context ctx;
-        return crow::mustache::load_text(fw);
-
-    });
     CROW_ROUTE(app, "/signer2.js")([](const crow::request &req){
         
         string fw=firewall(req.remote_ip_address, "front");
@@ -1476,16 +1142,6 @@ int listener(){
         return crow::mustache::load_text(fw);
         
     });
-    CROW_ROUTE(app, "/bootstrap.min.js")([](const crow::request &req){
-
-        string fw=firewall(req.remote_ip_address, "front");
-        if( fw == "true"){ 
-            crow::mustache::context ctx;
-            return crow::mustache::load_text("bootstrap.min.js");
-        } 
-        crow::mustache::context ctx;
-        return crow::mustache::load_text(fw);
-    });
     CROW_ROUTE(app, "/status.js")([](const crow::request &req){
         
         string fw=firewall(req.remote_ip_address, "front");
@@ -1496,13 +1152,10 @@ int listener(){
         crow::mustache::context ctx;
         return crow::mustache::load_text(fw);
     });
-    //total req 40 x min
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // request api
     // data index
-
-    //max 15 x min
 
     CROW_ROUTE(app, "/balance").methods("POST"_method)([](const crow::request &req, crow::response &res){
 
@@ -1523,13 +1176,13 @@ int listener(){
                 res.end();
             }
             res.set_header("Content-Type", "text/plain");
-            string account = x["resourse"].s();
+            string account = x["resource"].s();
             for (auto &s : account){s = toupper(s);}
             string response=searchlastmove( account,false);
 
             if(!HexCheck(response)){
-                res.body = "Error encoding or DB issue";
-                cout<<endl<< "Error encoding or DB issue"<<endl;
+                res.body = "Error "+response;
+                cout<<endl<< response<<endl;
             }else{
             res.body = response;
             }
@@ -1538,7 +1191,7 @@ int listener(){
         return res.end(); 
 
     });
-    //max 15 x min
+
     CROW_ROUTE(app, "/blocksearch").methods("POST"_method)([](const crow::request &req, crow::response &res){
 
         string fw=firewall(req.remote_ip_address, "blocksearch");
@@ -1553,23 +1206,23 @@ int listener(){
                 return res.end();
             }
 
-            if(!HexCheck(x["resourse"].s())){
+            if(!HexCheck(x["resource"].s())){
                 res.body = "Bad Format";
                 return res.end();
             }
 
-            if (x["resourse"].s() == ""){
+            if (x["resource"].s() == ""){
                 res.body = blreadblocksearch(to_string(lastbl));
                 return res.end();
             }
 
-            res.body = blreadblocksearch(x["resourse"].s());
+            res.body = blreadblocksearch(x["resource"].s());
             return res.end();
             }
         res.body = fw;
         return res.end(); 
     });
-    CROW_ROUTE(app, "/DataTransacIndex").methods("POST"_method)([](const crow::request &req, crow::response &res){
+    CROW_ROUTE(app, "/IndexTransaction").methods("POST"_method)([](const crow::request &req, crow::response &res){
 
         string fw=firewall(req.remote_ip_address, "blocksearch");
 
@@ -1589,20 +1242,27 @@ int listener(){
             if ( hexToInt(typeIndex) == 0){
                 string valueA = x["valueA"].s();
                 string valueB= x["valueB"].s();
-                res.body = transacByNumer2( hexToULL(valueA) , hexToInt(valueB) );
-                return res.end();
+                res.body =  transacByNumer2( hexToULL(valueA) , hexToInt(valueB) );
             }
             if ( hexToInt(typeIndex) == 1){
                 string valueA = x["valueA"].s();
                 string valueB= x["valueB"].s();
-                res.body = transacIdHash2( hexToULL(valueA) , hexToInt(valueB) );
-                return res.end();
+                res.body = transacIdHash2( hexToULL(valueA) , hexToInt(valueB));
             }
 
             if ( hexToInt(typeIndex) == 2){
                 string valueC= x["valueC"].s();
                 res.body = searchtransac( valueC );
-                return res.end();
+            }
+
+            if ( hexToInt(typeIndex) == 3){
+
+                string valueA = x["valueA"].s();
+                string valueB= x["valueB"].s();
+
+                cout<<endl<<" valueA "<<hexToULL(valueA)<< " valueA "<<hexToULL(valueB)<<endl;
+
+                res.body =  MsgTransacbynunmbr( hexToULL(valueA) ,hexToInt(valueB));
             }
 
             return res.end();
@@ -1630,9 +1290,9 @@ int listener(){
                     }
                     fl.push_back("unsynced");
                 }
-                fl.push_back( to_string(transacscomfirmed) );
+                fl.push_back( to_string(transacsconfirmed) );
                 fl.push_back( to_string(blksize) );
-                fl.push_back( to_string(lastblockbuild()) );
+                fl.push_back( to_string(lastblockbuilt()) );
                 fl.push_back( to_string( lastblDWULL));
                 fl.push_back( shaLBB());
 
@@ -1664,33 +1324,7 @@ int listener(){
         return res.end(); 
 
     });
-    CROW_ROUTE(app, "/accIndexing").methods("POST"_method)([](const crow::request &req, crow::response &res){
 
-        if(req.remote_ip_address == "127.0.0.1"){
-
-            auto x = crow::json::load(req.body);
-
-            if (!x){
-                res.set_header("Content-Type", "text/plain");
-                res.body = "Bad Format";
-                return res.end();
-            }
-
-            string acc = x["x"].s();
-            array <unsigned char,64> accarr = accArr(acc);
-
-            dbstruct& status = mapIndex[accarr];
-
-            res.set_header("Content-Type", "text/plain");
-            cout<< endl<< status.indexed<< endl;
-            res.body = status.indexed;
-            return res.end(); 
-        }
-        cout<<endl<<" Req-res "<<req.remote_ip_address;
-        cout << endl<< "Reject unauthorized call " << endl;
-        res.body = "Unauthorized call";
-        return res.end(); 
-    });
     CROW_ROUTE(app, "/blks").methods("POST"_method)([](const crow::request &req, crow::response &res){
 
         if(req.remote_ip_address == "127.0.0.1"){
@@ -1734,7 +1368,6 @@ int listener(){
         
         res.set_header("Content-Type", "text/plain");
         res.body = shaLBB();
-        cout<<endl<<"PeersLogged response:  "<< res.body <<endl;
         return res.end();
         
         cout<<endl<<" Req-res "<<req.remote_ip_address;
@@ -1789,7 +1422,7 @@ int listener(){
         
         if(req.remote_ip_address == "127.0.0.1"){
             crow::json::wvalue response;
-            std::unique_lock<std::mutex> peerssyncblocklock(peerssyncblock);
+            unique_lock<mutex> peerssyncblocklock(peerssyncblock);
             vector<string> fl = PublicNodesDir2();
             response = fl;
             return crow::response(response); 
@@ -1816,8 +1449,8 @@ int listener(){
 
             if (x["o"].i() == 1){
 
-                if(setmaxblks(x["resourse"].i())){
-                   // blksize =x["resourse"].i();
+                if(setmaxblks(x["resource"].i())){
+                   // blksize =x["resource"].i();
                     res.body = "OK";
                     return res.end(); 
                 }
@@ -1825,8 +1458,8 @@ int listener(){
 
             if (x["o"].i() == 2){
 
-                if(setmaxclientresp(x["resourse"].i())){
-                    transacmaxtime = x["resourse"].i();
+                if(setmaxclientresp(x["resource"].i())){
+                    transacmaxtime = x["resource"].i();
                     res.body = "OK";
                     return res.end(); 
                 }
@@ -1834,8 +1467,8 @@ int listener(){
 
             if (x["o"].i() == 3){
 
-                if(portsetting(x["resourse"].i())){
-                    port = x["resourse"].i();
+                if(portsetting(x["resource"].i())){
+                    port = x["resource"].i();
                     res.body = "OK";
                     return res.end(); 
                 }
@@ -1843,39 +1476,39 @@ int listener(){
 
             if (x["o"].i() == 4){
 
-                if(feedToDirsetting(x["resourse"].s())){
+                if(feedToDirsetting(x["resource"].s())){
                     res.body = "OK";
                     return res.end(); 
                 }
             }
 
             if (x["o"].i() == 5){
-                if(feedRatiosetting(x["resourse"].i())){
-                    feeds_ratio = x["resourse"].i();
+                if(feedRatiosetting(x["resource"].i())){
+                    feeds_ratio = x["resource"].i();
                     res.body = "OK";
                     return res.end(); 
                 }
             }
 
             if (x["o"].i() == 6){
-                if(shablbmaxbuffersetting(x["resourse"].i())){
-                    shablbmaxbuffer = x["resourse"].i();
+                if(shablbmaxbuffersetting(x["resource"].i())){
+                    shablbmaxbuffer = x["resource"].i();
                     res.body = "OK";
                     return res.end(); 
                 }
             }
 
             if (x["o"].i() == 7){
-                if(accIndexMaxCachesetting(x["resourse"].i())){
-                    accIndexMaxCache = x["resourse"].i();
+                if(accIndexMaxCachesetting(x["resource"].i())){
+                    accIndexMaxCache = x["resource"].i();
                     res.body = "OK";
                     return res.end(); 
                 }
             }
 
             if (x["o"].i() == 8){
-                if(SetTimingBl(x["resourse"].i())){
-                    Maxtimingbl = x["resourse"].i();
+                if(SetTimingBl(x["resource"].i())){
+                    Maxtimingbl = x["resource"].i();
                     res.body = "OK";
                     return res.end(); 
                 }
@@ -1906,9 +1539,9 @@ int listener(){
             auto x = crow::json::load(req.body);
             if (!x) {res.body = "Bad Format";  return res.end();}
             string PublicAddress = x["PublicAddress"].s();
-            for (auto &acc : PublicAddress) { acc = std::toupper(acc);}
+            for (auto &acc : PublicAddress) { acc = toupper(acc);}
             filesystem::path directory = "peer/PublicNode/";
-            for (const auto &entry : std::filesystem::directory_iterator(directory)){
+            for (const auto &entry : filesystem::directory_iterator(directory)){
                 if (entry.is_regular_file()) {
                     string PublicNodeDB = entry.path().filename().string();
                     if (PublicNodeDB == PublicAddress){
@@ -1991,7 +1624,7 @@ int listener(){
                         return res.end();
                     }
                     // verificar que la direccion tenga un formato correcto
-                    for (auto &acc : PublicAddress) {acc = std::toupper(acc);}
+                    for (auto &acc : PublicAddress) {acc = toupper(acc);}
 
                     if(!saveNewNode(PublicAddress)){
                         res.body = "Error Saving new Address";
@@ -2015,7 +1648,7 @@ int listener(){
                         return res.end();
                     }
 
-                    for (auto &acc : PublicAddress) {acc = std::toupper(acc);}
+                    for (auto &acc : PublicAddress) {acc = toupper(acc);}
 
                     cout<<endl<<" debug EraseNode call 2" <<ApiQuery<<endl;
 
@@ -2044,7 +1677,7 @@ int listener(){
 
                 }
 
-            } catch (const std::exception& e)  {
+            } catch (const exception& e)  {
 
             }
 
@@ -2071,7 +1704,7 @@ int listener(){
                                     }
 
                                     res.set_header("Content-Type", "text/plain");
-                                    string account = x["resourse"].s();
+                                    string account = x["resource"].s();
                                     memset(&x, 0, sizeof(x));
                                     string stg = derivate(account);
                                     stg = stg.substr(2, 128);
@@ -2091,29 +1724,17 @@ int listener(){
 
 int main(){
 
-    cout<<endl;
-    cout<<endl;
-    cout<<endl<<"     Cripto DB Signers Sums   "<<endl;
-    cout<<endl<<" =  software is developing by:  =";
-    cout<<endl<<"     #####################    ";                            
-    cout<<endl<<"                              ";           
-    cout<<endl<<"               S.S            ";  
-    cout<<endl<<"    Steevenjavier@gmail.com   ";                  
-    cout<<endl<<"                              ";                              
-    cout<<endl<<"           CriptoDbSS   ";                            
-    cout<<endl;                                                               
-    cout<<endl;  
-
+    instanceElementsTransaction();
 
     //Hash LastBlock;
     shaLBBArr();
     
     //purge bad/wrong download blocks
-    for (const auto &entry : std::filesystem::directory_iterator("blocks/dlsync")){
+    for (const auto &entry : filesystem::directory_iterator("blocks/dlsync")){
         if (entry.is_regular_file()){
             try {
-                std::filesystem::remove("blocks/"+entry.path().filename().string());
-            } catch (const std::exception& e) {
+                filesystem::remove("blocks/"+entry.path().filename().string());
+            } catch (const exception& e) {
             }
             remove(entry);
         }
@@ -2127,16 +1748,18 @@ int main(){
         s = toupper(s);
     }
 
-    cout<<endl<<" checking blocks DB integrity..."<<endl;
+    cout<<endl<<" checking blocks DB integrity...";
     
-    for(uint64_t i = lastbl; i>0; i--){
+    
+    for(uint64_t i = lastbl, e = 0; i>0; i--){
+        cout << "\033[2J\033[1;1H";
+        cout<<endl<<" checking block: "<<to_string(i)<<" %"<< ((e*10)/lastbl)*10;
+        e++;
         if(build_uncompressbl_secuCheck(i).size()<213){
             exit_call();
         }
     }
 
-    cout<<endl<<" check Success!!"<<endl;
-    
     ifstream archivo2("node/priv");
     if (archivo2.is_open()){
         string pr;
@@ -2145,6 +1768,43 @@ int main(){
         publicDirNode = derivate(pr);
         pr="";
     }
+
+    cout<<endl<<endl<<endl<<endl<<endl<<endl<<endl;
+          cout<<"#################################################################################################"; 
+    cout<<      "                                                                                                 " << endl;
+    cout<<endl<<"                                                |                        Δ                       |" << endl;                            
+    cout<<      "                                                |                       * *                      |" << endl;
+    cout<<      "             ***~ CryptoDbSS ~***               |          MatcMin     *   *         ALL         |" << endl;                                                    
+    cout<<      "                                                |                     *     *                    |" << endl;    
+    cout<<      "                                                |                    *       *                   |" << endl;
+    cout<<      "      Blockchain-core scheme, Consensus,        |    @  *  *  *  *  *  *   *  *  *  *  *  *  @   |" << endl;         
+    cout<<      "             Protocols and misc.                |      *           * ######### *           *     |" << endl;             
+    cout<<      "                                                |         *       * ########### *       *        |" << endl;
+    cout<<      "                                                |            *   * ############# *   *           |" << endl;
+    cout<<      "                 Validator Node                 |               * ############### *              |" << endl;
+    cout<<      "                                                |              *   * ######### *   *             |" << endl;
+    cout<<      "        this software is developing by:         |       ARE   *       * ### *       *    ONE     |" << endl;
+    cout<<      "                                                |            *           *           *           |" << endl;
+    cout<<      "  Steeven Salazar || Steevenjavier@gmail.com    |           *   _    *       *    _   *          |" << endl;
+    cout<<      "                                                |          @            S.S            @         |" << endl;
+    cout<<      "                                                                                              " << endl;
+    cout<<      "#################################################################################################" << endl;  
+    cout<<      "                                                                                             " << endl;
+    cout<<      "Blockchain:                 " << idblockchainName<< endl; 
+    cout<<      "Blockchain Id:              " <<  idBlckchn<< endl<<endl;           
+    cout<<      "Node Address:             " << publicDirNode.substr(0, 66)<< endl<< 
+                "                            "+publicDirNode.substr(66, 64)<<endl<<endl;   
+    cout<<      "Address feed receiver:      "<<dir_feeds.substr(0, 64)<< endl<< 
+                "                            "+dir_feeds.substr(64, 64)<<endl<<endl;    
+    cout<<      "last local block built:           " << lastbl<<endl; 
+    cout<<      "version:                    " << version<< endl<<endl;   
+    
+    cout<<      "#################################################################################################" << endl;                        
+
+    
+    cout<<endl<<endl<<"DB integrity OK";
+    
+
     
     ClearOpBlks();
 
@@ -2152,7 +1812,7 @@ int main(){
 
     syncNetwork();
 
-    cout<<endl<<"init threads.."<<endl;
+    cout<<endl<<"init threads..";
 
     /////////////////////////////////////threads init//////////////////////
 
@@ -2174,7 +1834,7 @@ int main(){
     thread thread7(statusCheck);
     thread7.detach();
 
-    std::this_thread::sleep_for(std::chrono::seconds(4));
+    this_thread::sleep_for(chrono::seconds(4));
 
     thread thread4(syncnetwork_matchMinRound);
     thread4.detach();

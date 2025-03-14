@@ -22,7 +22,7 @@ CryptoDbSS: Software Review and Audit License.
 
     No Redistribution: The Licensee may not redistribute, publish, or share 
     the Software, in its original or modified form, without the express consent
-     of the Licensor.
+    of the Licensor.
     
     Attribution: Any use of the Software must include attribution to the 
     Licensor, clearly stating the author’s name and this License.

@@ -1,29 +1,45 @@
-/*
- * Software Name: CryptoDbSS
+/*******************************************************************************
+
+ * This notice, including the copyright notice and permission notice, 
+ * must be retained in all copies or substantial portions of the Software and 
+ * in all derivative works.
+ *
+ * Software Name: CryptoDbSS-Validator
  * Copyright (C) 2025 Steeven J Salazar.
  * License: CryptoDbSS: Software Review and Audit License
  * 
- * https://github.com/Steeven512/CryptoDbSS
+ * https://github.com/CryptoDbSS/CryptoDbSS-Validator
  *
- * IMPORTANT: Before using, compiling or do anything with this software, 
- * you must read and accept the terms of this License.
+ * IMPORTANT: Before using, compiling, or doing anything with this software,
+ * you must read and accept the terms of the License provided with this software.
+ *
+ * If you do not have a copy of the License, you can obtain it at the following link:
+ * https://github.com/CryptoDbSS/CryptoDbSS-Validator/blob/main/LICENSE.md
+ *
+ * By using, compiling, or modifying this software, you implicitly accept
+ * the terms of the License. If you do not agree with the terms,
+ * do not use, compile, or modify this software.
  * 
  * This software is provided "as is," without warranty of any kind.
  * For more details, see the LICENSE file.
- */
 
-/* 
+********************************************************************************/
+
+
+/* ********************************************************************************
  
-The CryptoDbSS, blockchain-core, consensus, protocols and misc.
+    The CryptoDbSS, blockchain-core, consensus, protocols and misc.
 
-This software is a prototype version, it should only be used for 
-development, testing, study and auditing proporses. 
+    This software is a review and audit release, it should only be used for 
+    development, testing, education and auditing purposes. 
 
-Third-party dependencies: CrowCpp, Crypto++, OpenSSL, Boost, ASIO, libcurl.
+    Third-party dependencies: CrowCpp, Crypto++, OpenSSL, Boost, ASIO, libcurl.
 
-questions, suggestions or contact : Steevenjavier@gmail.com
+    questions, suggestions or contact : Steevenjavier@gmail.com
 
-*/
+                                S.S
+
+*********************************************************************************/
 
 #include <cryptopp/eccrypto.h>
 #include <cryptopp/osrng.h>
@@ -78,7 +94,24 @@ ECDSA<ECP, CryptoPP::SHA256>::PublicKey loadPublicKey(const std::string &pt)
     return publicKey;
 }
 
-bool verifySignature(const std::string &message, const std::string &signature_hex, const CryptoPP::ECDSA<ECP, CryptoPP::SHA256>::PublicKey &publicKey){
+bool verifySignatureCryptoPP(unsigned char (&Transaction)[], uint8_t transactionSize, unsigned char (&signature)[64] , array<unsigned char,64>publickey){
+
+    string message="";
+    string accStg =""; 
+    string signature_hex =""; 
+    for(uint8_t i = 0 ; i<64; i++){
+        
+        accStg+= byteToHex2(publickey[i]);
+
+    }
+    for(uint8_t i = 0 ; i<transactionSize; i++){
+        message+= byteToHex2(Transaction[i]);
+    }
+    for(uint8_t i = 0 ; i<64; i++){
+        signature_hex+= byteToHex2(signature[i]);
+    }
+
+    CryptoPP::ECDSA<ECP, CryptoPP::SHA256>::PublicKey publicKey= loadPublicKey(accStg);
 
     try {
         std::string signature_str;
@@ -87,7 +120,6 @@ bool verifySignature(const std::string &message, const std::string &signature_he
         size_t signature_size = signature_str.size();
         // Verificación de la firma digital
         CryptoPP::ECDSA<ECP, CryptoPP::SHA256>::Verifier verifier(publicKey);
-
         bool result = verifier.VerifyMessage((const CryptoPP::byte *)&message[0], message.size(), signature, signature_size);
 
     if (!result){
@@ -101,25 +133,7 @@ bool verifySignature(const std::string &message, const std::string &signature_he
 
 }
 
-bool verifySignature2(const unsigned char message[], size_t messageLen, const unsigned char signature_hex[], size_t signature_hexLen, const CryptoPP::ECDSA<ECP, CryptoPP::SHA256>::PublicKey& publicKey) {
-    try {
-        std::string signature_str;
-        StringSource(signature_hex, signature_hexLen, true, new HexDecoder(new StringSink(signature_str)));
-        const CryptoPP::byte* signature = reinterpret_cast<const CryptoPP::byte*>(signature_str.data());
-        size_t signature_size = signature_str.size();
-
-        // Verificación de la firma digital
-        CryptoPP::ECDSA<ECP, CryptoPP::SHA256>::Verifier verifier(publicKey);
-        bool result = verifier.VerifyMessage(message, messageLen, signature, signature_size);
-
-        return result;
-    } catch (const std::exception& e) {
-        return false;
-    }
-}
-
-std::string derivate(std::string priv)
-{
+std::string derivate(std::string priv){
 
     HexDecoder decoder;
     decoder.Put((CryptoPP::byte *)&priv[0], priv.size());
@@ -149,98 +163,27 @@ std::string derivate(std::string priv)
     
 }
 
-//SUCCESS
-unsigned char* derivate2( std::string& priv)
-{
-    HexDecoder decoder;
-    decoder.Put((CryptoPP::byte *)&priv[0], priv.size());
-    decoder.MessageEnd();
-    Integer x;
+bool verifySignature(const std::string &message, const std::string &signature_hex, const CryptoPP::ECDSA<ECP, CryptoPP::SHA256>::PublicKey &publicKey){
 
-    x.Decode(decoder, decoder.MaxRetrievable());
+    try {
+        std::string signature_str;
+        StringSource(signature_hex, true, new HexDecoder(new StringSink(signature_str)));
+        const CryptoPP::byte *signature = reinterpret_cast<const CryptoPP::byte *>(signature_str.data());
+        size_t signature_size = signature_str.size();
+        // Verificación de la firma digital
+        CryptoPP::ECDSA<ECP, CryptoPP::SHA256>::Verifier verifier(publicKey);
 
-    CryptoPP::ECDSA<ECP, CryptoPP::SHA256>::PrivateKey k2;
-    k2.Initialize(ASN1::secp256k1(), x);
-    CryptoPP::ECDSA<ECP, CryptoPP::SHA256>::PublicKey publicKey;
-    k2.MakePublicKey(publicKey);
+        bool result = verifier.VerifyMessage((const CryptoPP::byte *)&message[0], message.size(), signature, signature_size);
 
-    size_t publicKeySize = 65;
-    unsigned char* output = new unsigned char[publicKeySize];
-    CryptoPP::ArraySink sink(output, publicKeySize);
-    publicKey.DEREncodePublicKey(sink);
-
-    memset(&publicKey, 0, sizeof(publicKey));
-    memset(&k2, 0, sizeof(k2));
-    memset(&x, 0, sizeof(x));
-    memset(&decoder, 0, sizeof(decoder));
-    return output;
-}
-
-std::string Signer2(std::string priv, std::string message)
-{
-
-    HexDecoder decoder;
-    decoder.Put((CryptoPP::byte *)&priv[0], priv.size());
-    decoder.MessageEnd();
-
-    Integer x;
-
-    x.Decode(decoder, decoder.MaxRetrievable());
-
-    CryptoPP::ECDSA<ECP, CryptoPP::SHA256>::PrivateKey k2;
-    k2.Initialize(ASN1::secp256k1(), x);
-    CryptoPP::ECDSA<ECP, CryptoPP::SHA256>::PublicKey publicKey;
-    k2.MakePublicKey(publicKey);
-
-    x = publicKey.GetPublicElement().x;
-    Integer y = publicKey.GetPublicElement().y;
-    std::string xStr, yStr;
-    x.Encode(HexEncoder(new StringSink(xStr)).Ref(), x.MinEncodedSize());
-    y.Encode(HexEncoder(new StringSink(yStr)).Ref(), y.MinEncodedSize());
-/*
-    // Imprimir las coordenadas x e y en hexadecimal
-    std::cout << "Coordenada x: " << xStr << std::endl;
-    std::cout << "Coordenada y: " << yStr << std::endl;
-*/
-    CryptoPP::ECDSA<ECP, CryptoPP::SHA256>::Signer signer(k2);
-
-    size_t siglen = signer.MaxSignatureLength();
-    std::string signature(siglen, 0x00);
-
-    AutoSeededRandomPool prng;
-    siglen = signer.SignMessage(prng, (const CryptoPP::byte *)&message[0], message.size(), (CryptoPP::byte *)&signature[0]);
-    signature.resize(siglen);
-
-    std::string signature_hex;
-
-    std::cout<<signature_hex;
-    StringSource((const CryptoPP::byte *)&signature[0], signature.size(), true, new HexEncoder(new StringSink(signature_hex)));
-
-    bool lastok = verifySignature(message, signature_hex, publicKey);
-
-    if (!lastok)
-    {
-        std::cout << "FAIL :(" << std::endl;
+    if (!result){
+        return false;
     }
-    else
-    {
-        /*
-        std::cout << "OK :)" << std::endl;
+    return result;
 
-        std::cout << "la firma es " + signature_hex << std::endl;
-        */
-        memset(&prng, 0, sizeof(prng));
-        memset(&signer, 0, sizeof(signer));
-        memset(&publicKey, 0, sizeof(publicKey));
-        memset(&k2, 0, sizeof(k2));
-        memset(&x, 0, sizeof(x));
-        memset(&decoder, 0, sizeof(decoder));
-        memset(&priv, 0, sizeof(priv));
-        
-        return signature_hex;
+    } catch (const std::exception& e) {
+        return false;
     }
 
-    return "signing error";
 }
 
 std::string Signer(std::string priv, std::string message) {
@@ -287,4 +230,110 @@ std::string Signer(std::string priv, std::string message) {
     }
 }
 
+bool verifySignature2(const unsigned char message[], size_t messageLen, const unsigned char signature_hex[], size_t signature_hexLen, const CryptoPP::ECDSA<ECP, CryptoPP::SHA256>::PublicKey& publicKey) {
+    try {
+        std::string signature_str;
+        StringSource(signature_hex, signature_hexLen, true, new HexDecoder(new StringSink(signature_str)));
+        const CryptoPP::byte* signature = reinterpret_cast<const CryptoPP::byte*>(signature_str.data());
+        size_t signature_size = signature_str.size();
 
+        // Verificación de la firma digital
+        CryptoPP::ECDSA<ECP, CryptoPP::SHA256>::Verifier verifier(publicKey);
+        bool result = verifier.VerifyMessage(message, messageLen, signature, signature_size);
+
+        return result;
+    } catch (const std::exception& e) {
+        return false;
+    }
+}
+
+//SUCCESS
+unsigned char* derivate2( std::string& priv){
+    HexDecoder decoder;
+    decoder.Put((CryptoPP::byte *)&priv[0], priv.size());
+    decoder.MessageEnd();
+    Integer x;
+
+    x.Decode(decoder, decoder.MaxRetrievable());
+
+    CryptoPP::ECDSA<ECP, CryptoPP::SHA256>::PrivateKey k2;
+    k2.Initialize(ASN1::secp256k1(), x);
+    CryptoPP::ECDSA<ECP, CryptoPP::SHA256>::PublicKey publicKey;
+    k2.MakePublicKey(publicKey);
+
+    size_t publicKeySize = 65;
+    unsigned char* output = new unsigned char[publicKeySize];
+    CryptoPP::ArraySink sink(output, publicKeySize);
+    publicKey.DEREncodePublicKey(sink);
+
+    memset(&publicKey, 0, sizeof(publicKey));
+    memset(&k2, 0, sizeof(k2));
+    memset(&x, 0, sizeof(x));
+    memset(&decoder, 0, sizeof(decoder));
+    return output;
+}
+std::string Signer2(std::string priv, std::string message){
+
+    HexDecoder decoder;
+    decoder.Put((CryptoPP::byte *)&priv[0], priv.size());
+    decoder.MessageEnd();
+
+    Integer x;
+
+    x.Decode(decoder, decoder.MaxRetrievable());
+
+    CryptoPP::ECDSA<ECP, CryptoPP::SHA256>::PrivateKey k2;
+    k2.Initialize(ASN1::secp256k1(), x);
+    CryptoPP::ECDSA<ECP, CryptoPP::SHA256>::PublicKey publicKey;
+    k2.MakePublicKey(publicKey);
+
+    x = publicKey.GetPublicElement().x;
+    Integer y = publicKey.GetPublicElement().y;
+    std::string xStr, yStr;
+    x.Encode(HexEncoder(new StringSink(xStr)).Ref(), x.MinEncodedSize());
+    y.Encode(HexEncoder(new StringSink(yStr)).Ref(), y.MinEncodedSize());
+    /*
+    // Imprimir las coordenadas x e y en hexadecimal
+    std::cout << "Coordenada x: " << xStr << std::endl;
+    std::cout << "Coordenada y: " << yStr << std::endl;
+    */
+    CryptoPP::ECDSA<ECP, CryptoPP::SHA256>::Signer signer(k2);
+
+    size_t siglen = signer.MaxSignatureLength();
+    std::string signature(siglen, 0x00);
+
+    AutoSeededRandomPool prng;
+    siglen = signer.SignMessage(prng, (const CryptoPP::byte *)&message[0], message.size(), (CryptoPP::byte *)&signature[0]);
+    signature.resize(siglen);
+
+    std::string signature_hex;
+
+    std::cout<<signature_hex;
+    StringSource((const CryptoPP::byte *)&signature[0], signature.size(), true, new HexEncoder(new StringSink(signature_hex)));
+
+    bool lastok = verifySignature(message, signature_hex, publicKey);
+
+    if (!lastok)
+    {
+        std::cout << "FAIL :(" << std::endl;
+    }
+    else
+    {
+        /*
+        std::cout << "OK :)" << std::endl;
+
+        std::cout << "la firma es " + signature_hex << std::endl;
+        */
+        memset(&prng, 0, sizeof(prng));
+        memset(&signer, 0, sizeof(signer));
+        memset(&publicKey, 0, sizeof(publicKey));
+        memset(&k2, 0, sizeof(k2));
+        memset(&x, 0, sizeof(x));
+        memset(&decoder, 0, sizeof(decoder));
+        memset(&priv, 0, sizeof(priv));
+        
+        return signature_hex;
+    }
+
+    return "signing error";
+}

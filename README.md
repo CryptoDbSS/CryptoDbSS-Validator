@@ -52,7 +52,7 @@ The architecture of CryptoDbSS features **robust security algorithms**, **high e
 
   ### **1. License Agreement**
 
-  - Before using, compiling, reading, auditing, or doing anything with the software or its derivatives, **you must read and accept the agreements** specified in the **LICENSE.txt** file provided in the package.
+  - Before using, compiling, reading, auditing, or doing anything with the software or its derivatives, **you must read and accept the agreements** specified in the **LICENSE.md** file provided in the package.
 
   ### **2. Compiling the Application**
 

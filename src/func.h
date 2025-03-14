@@ -1,62 +1,108 @@
-/*
- * Software Name: CryptoDbSS
+/*******************************************************************************
+
+ * This notice, including the copyright notice and permission notice, 
+ * must be retained in all copies or substantial portions of the Software and 
+ * in all derivative works.
+ *
+ * Software Name: CryptoDbSS-Validator
  * Copyright (C) 2025 Steeven J Salazar.
  * License: CryptoDbSS: Software Review and Audit License
  * 
- * https://github.com/Steeven512/CryptoDbSS
+ * https://github.com/CryptoDbSS/CryptoDbSS-Validator
  *
- * IMPORTANT: Before using, compiling or do anything with this software, 
- * you must read and accept the terms of this License.
+ * IMPORTANT: Before using, compiling, or doing anything with this software,
+ * you must read and accept the terms of the License provided with this software.
+ *
+ * If you do not have a copy of the License, you can obtain it at the following link:
+ * https://github.com/CryptoDbSS/CryptoDbSS-Validator/blob/main/LICENSE.md
+ *
+ * By using, compiling, or modifying this software, you implicitly accept
+ * the terms of the License. If you do not agree with the terms,
+ * do not use, compile, or modify this software.
  * 
  * This software is provided "as is," without warranty of any kind.
  * For more details, see the LICENSE file.
- */
+
+********************************************************************************/
 
 
-/* 
+/* ********************************************************************************
  
-The CryptoDbSS, blockchain-core, consensus, protocols and misc.
+    The CryptoDbSS, blockchain-core, consensus, protocols and misc.
 
-This software is a prototype version, it should only be used for 
-development, testing, study and auditing proporses. 
+    This software is a review and audit release, it should only be used for 
+    development, testing, education and auditing purposes. 
 
-Third-party dependencies: CrowCpp, Crypto++, OpenSSL, Boost, ASIO, libcurl.
+    Third-party dependencies: CrowCpp, Crypto++, OpenSSL, Boost, ASIO, libcurl.
 
-questions, suggestions or contact : Steevenjavier@gmail.com
+    questions, suggestions or contact : Steevenjavier@gmail.com
 
-*/
+                                S.S
+
+*********************************************************************************/
 
 #ifndef FUNCIONES_H
 #define FUNCIONES_H
 
 
 #include "CryptoDbSS.cpp"
+#include "TransactionType.h"
 
 using namespace std;
 
-string readTransacFirmString(string &stg);
+string ShortSignTransacStr(string &stg);
 bool blread2(const std::string& filename,vector<unsigned char> &bl2);
 string blread(string bl);
 
 
 extern uint64_t lastbl;
-
-
-void blockThread(bool &threadbool , string threadName, uint sleepfor){
-
-    while(threadbool){cout<<endl<<threadName;
-        std::this_thread::sleep_for(std::chrono::milliseconds(sleepfor));
-    }
-    while(threadbool){cout<<endl<<threadName;
-        std::this_thread::sleep_for(std::chrono::milliseconds(sleepfor));
-    }
-    threadbool = true;
-
-}
  
 void exit_call(){
     cout<<"Error Exit";
     exit(0);
+}
+
+void DisplayAppInfo(){
+
+    extern const string version;
+    extern const string idblockchainName;
+    extern const string idBlckchn;
+    extern string publicDirNode;
+    extern string dir_feeds;
+    extern uint64_t lastbl;
+
+        cout<<endl<<endl<<endl<<endl<<endl<<endl<<endl;
+          cout<<"#################################################################################################"; 
+    cout<<      "                                                                                                 " << endl;
+    cout<<endl<<"                                                |                        Δ                       |" << endl;                            
+    cout<<      "                                                |                       * *                      |" << endl;
+    cout<<      "             ***~ CryptoDbSS ~***               |          MatcMin     *   *         ALL         |" << endl;                                                    
+    cout<<      "                                                |                     *     *                    |" << endl;    
+    cout<<      "                                                |                    *       *                   |" << endl;
+    cout<<      "      Blockchain-core scheme, Consensus,        |    @  *  *  *  *  *  *   *  *  *  *  *  *  @   |" << endl;         
+    cout<<      "             Protocols and misc.                |      *           * ######### *           *     |" << endl;             
+    cout<<      "                                                |         *       * ########### *       *        |" << endl;
+    cout<<      "                                                |            *   * ############# *   *           |" << endl;
+    cout<<      "                 Validator Node                 |               * ############### *              |" << endl;
+    cout<<      "                                                |              *   * ######### *   *             |" << endl;
+    cout<<      "        this software is developing by:         |       ARE   *       * ### *       *    ONE     |" << endl;
+    cout<<      "                                                |            *           *           *           |" << endl;
+    cout<<      "  Steeven Salazar || Steevenjavier@gmail.com    |           *   _    *       *    _   *          |" << endl;
+    cout<<      "                                                |          @            S.S            @         |" << endl;
+    cout<<      "                                                                                              " << endl;
+    cout<<      "#################################################################################################" << endl;  
+    cout<<      "                                                                                             " << endl;
+    cout<<      "Blockchain:                 " << idblockchainName<< endl; 
+    cout<<      "Blockchain Id:              " <<  idBlckchn<< endl<<endl;           
+    cout<<      "Node Address:             " << publicDirNode.substr(0, 66)<< endl<< 
+                "                            "+publicDirNode.substr(66, 64)<<endl<<endl;   
+    cout<<      "Address feed receiver:      "<<dir_feeds.substr(0, 64)<< endl<< 
+                "                            "+dir_feeds.substr(64, 64)<<endl<<endl;    
+    cout<<      "last local block built:           " << lastbl<<endl; 
+    cout<<      "version:                    " << version<< endl<<endl;   
+    
+    cout<<      "#################################################################################################" << endl;   
+
 }
 
 string LocalSigner(string data){
@@ -129,8 +175,6 @@ try {
 
 }
 
-
-
 bool compareArrayToVector(const vector<unsigned char>& vec, size_t vecStart, array<unsigned char, 64 > acc, size_t arrSize) {
 
     for (size_t i = 0; i < arrSize; i++) {
@@ -140,7 +184,6 @@ bool compareArrayToVector(const vector<unsigned char>& vec, size_t vecStart, arr
     }
     return true;
 }
-
 
 uint32_t readUint32FromBl(const std::vector<unsigned char>& vec, size_t startIndex) {
 
@@ -172,13 +215,13 @@ uint64_t readbalanceFromDatatransacArray(unsigned char (&DataTransac)[247],bool 
     uint64_t result = 0;
     if (side){
         result = 0;
-        size_t startIndex = 137;
+        size_t startIndex = TransactionDataFormat[DataTransac[0]].POS_valueR_Bytes;
         for (size_t i = 0; i < 8; ++i) {
             result = (result << 8) | static_cast<uint64_t>(DataTransac[startIndex + i]);
         }
     }else {
         result = 0;
-        size_t startIndex = 65;
+        size_t startIndex = TransactionDataFormat[DataTransac[0]].POS_valueL_Bytes;
         for (size_t i = 0; i < 8; ++i) {
             result = (result << 8) | static_cast<uint64_t>(DataTransac[startIndex + i]);
         }
@@ -227,19 +270,19 @@ string vectorstring(vector<unsigned char> &vec){
 
 bool FIRMCheck2(string sth, string blheaderdata){
 
-/*
+    /*
     cout<<endl<<"bloque: "<<sth;
     cout<<endl<<"datatransacString: "<<dataTransacString(sth);
     cout<<endl<<"hidden data: "<<blheaderdata<<endl;
-    cout<<endl<<"readfirm: "<<readTransacFirmString(sth);
+    cout<<endl<<"readfirm: "<<ShortSignTransacStr(sth);
     cout<<endl<<"publickey: "<< readaccountString(sth,false) <<endl;
 
     cout<< " firmcheck2 data transac "<<sth+blheaderdata<<endl<<endl;
-    cout<< " firmcheck2 data readTransacFirmString(sth) "<<readTransacFirmString(sth)<<endl<<endl;
+    cout<< " firmcheck2 data ShortSignTransacStr(sth) "<<ShortSignTransacStr(sth)<<endl<<endl;
     cout<< " firmcheck2 publicsigner "<<readaccountString(sth,false)<<endl<<endl;
-*/
+    */
 
-    if(!verifySignature(sth.substr(0,302)+blheaderdata, readTransacFirmString(sth), loadPublicKey(readaccountString(sth,false)))){
+    if(!verifySignature(sth.substr(0,TransactionDataFormat[hexToUint8_t(sth.substr(0,2))].POS_signature_string)+blheaderdata, ShortSignTransacStr(sth), loadPublicKey(readaccountString(sth,false)))){
         return false;
     }
     
@@ -340,7 +383,9 @@ bool compareULongToCharVector(unsigned long long ulongVal, const vector<unsigned
     }
     return true;
 }
-
+/**
+ * hash the last block built in vector<unsigned char>ShaLBBBufferedArr
+*/
 void shaLBBArr(){
 
     extern vector<unsigned char> ShaLBBBufferedArr;
@@ -440,5 +485,36 @@ array<unsigned char, 64 > accArr(string acctpubk) {
     return acca;
 }
 
+string readDataTransac(string &DataTransac){
+
+   return DataTransac.substr(0, TransactionDataFormat[hexToUint(DataTransac.substr(0,2))].POS_signatureWithHidden_string);
+
+
+}
+
+/*
+string readsignatureTransac(string &DataTransac){
+
+   uint8_t TransactionTypeUint = hexToUint(DataTransac.substr(0,2));
+
+    switch(TransactionTypeUint ){
+
+        case 0x00 :
+            return DataTransac.substr(0, POS_signatureWithHidden_0x00_string);
+            break;
+
+        case 0x0A :
+            return DataTransac.substr(0 , POS_signatureWithHidden_0x0A_string);
+            break;
+
+        defaul:
+            return "Error - readDataTransac(string &DataTransac) transaction type no match ";
+            break;
+    }
+
+    return "Error - readDataTransac(string &DataTransac) transaction type no match ";
+
+}
+*/
 
 #endif

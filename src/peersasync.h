@@ -1,30 +1,45 @@
-/*
- * Software Name: CryptoDbSS
+/*******************************************************************************
+
+ * This notice, including the copyright notice and permission notice, 
+ * must be retained in all copies or substantial portions of the Software and 
+ * in all derivative works.
+ *
+ * Software Name: CryptoDbSS-Validator
  * Copyright (C) 2025 Steeven J Salazar.
  * License: CryptoDbSS: Software Review and Audit License
  * 
- * https://github.com/Steeven512/CryptoDbSS
+ * https://github.com/CryptoDbSS/CryptoDbSS-Validator
  *
- * IMPORTANT: Before using, compiling or do anything with this software, 
- * you must read and accept the terms of this License.
+ * IMPORTANT: Before using, compiling, or doing anything with this software,
+ * you must read and accept the terms of the License provided with this software.
+ *
+ * If you do not have a copy of the License, you can obtain it at the following link:
+ * https://github.com/CryptoDbSS/CryptoDbSS-Validator/blob/main/LICENSE.md
+ *
+ * By using, compiling, or modifying this software, you implicitly accept
+ * the terms of the License. If you do not agree with the terms,
+ * do not use, compile, or modify this software.
  * 
  * This software is provided "as is," without warranty of any kind.
  * For more details, see the LICENSE file.
- */
+
+********************************************************************************/
 
 
-/* 
+/* ********************************************************************************
  
-The CryptoDbSS, blockchain-core, consensus, protocols and misc.
+    The CryptoDbSS, blockchain-core, consensus, protocols and misc.
 
-This software is a prototype version, it should only be used for 
-development, testing, study and auditing proporses. 
+    This software is a review and audit release, it should only be used for 
+    development, testing, education and auditing purposes. 
 
-Third-party dependencies: CrowCpp, Crypto++, OpenSSL, Boost, ASIO, libcurl.
+    Third-party dependencies: CrowCpp, Crypto++, OpenSSL, Boost, ASIO, libcurl.
 
-questions, suggestions or contact : Steevenjavier@gmail.com
+    questions, suggestions or contact : Steevenjavier@gmail.com
 
-*/
+                                S.S
+
+*********************************************************************************/
 
 #ifndef PEERSASYNC_H
 #define PEERSASYNC_H
@@ -51,7 +66,7 @@ extern uint64_t lastbl;
 extern mutex WritingAccSync;
 extern map<string,nodeStruct> Nodes; 
 extern  string matchminProposalArrengelStr;
-extern bool matchminbuilded;
+extern bool matchminbuilt;
 extern bool shaMatchMinproposalReveled;
 extern map<string ,string> matchminSortRound;
 extern string shaMatchMinproposal;
@@ -67,7 +82,7 @@ string SHAstg(string stg);
 string shaLBB();
 void addStringInVector(vector<string> &vec, string datatocodify);
 void addHexStringInVector(vector<uint8_t> &vec, string datatocodify);
-unsigned long long lastblockbuild();
+unsigned long long lastblockbuilt();
 string blread(string bl);
 string searchlastmove(string acctpubk,bool IsAccSync);
 vector<uint8_t> stringToBytes(const std::string& str);
@@ -82,7 +97,7 @@ bool Loggednode(string ip){
     std::unique_lock<std::mutex> peerssyncblocklock(peerssyncblock);
     auto it = Nodes.begin();
     while (it != Nodes.end()) {
-        cout<<endl<<" Loggednode iter "<<it->second.ip<< " ip request "<< ip<<endl;
+        //cout<<endl<<" Loggednode iter "<<it->second.ip<< " ip request "<< ip<<endl;
         if (ip == it->second.ip.substr(0 , ip.length())){
             if(it->second.logged){
                 return true;
@@ -133,7 +148,6 @@ bool LoadPeersInit(){
 
 bool peersLogin(){
 
-    cout << endl<< "peersLogin() =>" << endl;
     string linea;
     vector<string> filalocal;
     vector<string> datoslocal;
@@ -166,14 +180,16 @@ bool peersLogin(){
                                 ifstream NodeDirDb("peer/PublicNode/"+entry.path().filename().string());
 
                                 if (!NodeDirDb.is_open()){
-                                    cout << "invalid login data "<<endl;
+                                    cout << "invalid login data ";
                                     continue;
                                 }
                                 // comprobar cert con cuenta local
                                 NodeDirDb.close();
-                                if (linea.substr(66, 64)!=SHAstg(publicDirNode)){ cout << "invalid login data "<<endl;continue;}
+                                if (linea.substr(66, 64)!=SHAstg(publicDirNode)){ cout << "invalid login data ";
+                                    continue;
+                                }
                                 
-                                if (!verifySignature(linea.substr(0, 208), linea.substr(210, 128), loadPublicKey(PublicNode.substr(2, 128)))){cout << "invalid login firm" << endl;
+                                if (!verifySignature(linea.substr(0, 208), linea.substr(210, 128), loadPublicKey(PublicNode.substr(2, 128)))){cout << "invalid login sign" ;
                                     continue;
                                 }
 
@@ -195,7 +211,7 @@ bool peersLogin(){
                                 ||response_data.substr(132,64) != lbbSHA
                                 ||response_data.substr(198,10) != timer
                                 )                                                   {
-                                    cout << " bad_response from node" << endl;
+                                    cout << " bad_response from node";
                                     //continue;
                                 }
 
@@ -357,7 +373,7 @@ void matchmingMistake(){
 
     if(errorMatchminCount>20){
 
-        cout<<endl<<" matchmingMistake max attemp"<<endl<<"skipping matchmin"<<endl;
+        cout<<endl<<" matchmingMistake max attemp"<<endl<<"skipping matchmin node";
 
         if(peersMatchMin.size()>0){
             peersMatchMin.erase(peersMatchMin.begin() + 0);
@@ -395,10 +411,10 @@ bool lastbllocalmatchsync(){
     string response;
     for(int i =0 ; i<3 ;i++){
         response = curlpost2("https://" + ipquery + "/lastblsync", jsonval, 1000);
-        cout<<endl<<"lastbllocalmatchsync  response "+ipquery+" "<<response<<endl;
+        cout<<endl<<"lastbllocalmatchsync  response "+ipquery+" "<<response;
  
         if (response == "STATUS_OK"){
-            cout<<endl<<"lastbllocalmatchsync STATUS_OK"<<endl;
+            cout<<endl<<"lastbllocalmatchsync STATUS_OK";
             errorMatchminCount = 0;
             return true;
         }
@@ -430,12 +446,12 @@ string lastblDW(){
         }
         string datastring =curlpost2( "https://"+peerIp+"/lastBlLocal", random32hexstr, timeout_ms);
         if (datastring.length() != 144 || !HexCheck(datastring)){
-            cout << endl<<" lastblDW() : node " +peerIp + ": Response Fail. Invalid data "+datastring<< endl;
+            cout << endl<<" lastblDW() : node " +peerIp + ": Response Fail. Invalid data "+datastring;
             ++it;
             continue;
         }
         if( !verifySignature(random32hexstr+datastring.substr(0,16), datastring.substr(16,128) ,  loadPublicKey(it->first.substr(2 ,128))) ){
-            cout<<endl<< "Invalid sign from request : https://"+peerIp+"/lastBlLocal"<<endl;
+            cout<<endl<< "Invalid sign from request : https://"+peerIp+"/lastBlLocal";
             ++it;
             continue;
         }
@@ -487,7 +503,7 @@ bool matchMinBuildQueueFromNetwork(){
         try {
 
             if (response == "00"){
-                cout << endl<< it->second.ip+"/peersMatchMin SHA" << ": Response Fail. "<< endl;
+                cout << endl<< it->second.ip+"/peersMatchMin SHA" << ": Response Fail. ";
                 ++it;
                 continue;
             }
@@ -500,7 +516,7 @@ bool matchMinBuildQueueFromNetwork(){
             string firmnode = x[3].s();
 
             if(!verifySignature(datastring+shalb+timingblshaminround, firmnode ,  loadPublicKey(it->first.substr(2 , 128)))){
-                cout<<endl<<"invalid sign from "<<it->first<< " response from: "<< "https://"+PeerIp+"/peersMatchMin SHA"<<endl;
+                cout<<endl<<"invalid sign from "<<it->first<< " response from: "<< "https://"+PeerIp+"/peersMatchMin SHA";
                 ++it;
                 continue;
                         
@@ -512,7 +528,7 @@ bool matchMinBuildQueueFromNetwork(){
 
         }     
         catch (const std::exception& e) {
-                cout<<endl<<" matchMinBuildQueueFromNetwork() invalid response from: "<< "https://"+PeerIp+"/peersMatchMin SHA "+response<<endl;
+                cout<<endl<<" matchMinBuildQueueFromNetwork() invalid response from: "<< "https://"+PeerIp+"/peersMatchMin SHA "+response;
 
         }
         ++it;
@@ -522,8 +538,8 @@ bool matchMinBuildQueueFromNetwork(){
     string maxsha = MatchMaxString(shaqueue);
 
 
-    if( (hexToInt(maxsha.substr(0,8))*10000) / Nodes2.size()-1<5100){
-        cout<<endl<<"fail matchMinBuildQueueFromNetwork maxsha < 51"<<endl;
+    if( (hexToInt(maxsha.substr(0,8))*10000) / (Nodes2.size()-1<5100) ){
+        cout<<endl<<"matchMinBuildQueueFromNetwork maxsha fail result: "<<(hexToInt(maxsha.substr(0,8))*10000) / (Nodes2.size()-1<5100)<<"%" ;
         return false;
     }
 
@@ -531,7 +547,7 @@ bool matchMinBuildQueueFromNetwork(){
 
     for (const std::string& pairs : map[maxsha]) {
 
-        cout<<endl<<"build matchmin network Dir: request to "<<pairs<<endl;
+        //cout<<endl<<"built matchmin network Dir: request to "<<pairs;
         string datastring = curlpost2("https://"+pairs+"/peersMatchMin", "Dir", timeout_ms);
 
         try {
@@ -542,7 +558,7 @@ bool matchMinBuildQueueFromNetwork(){
             for(int i = 0; i<x.size();i++){
                 jsonstring = x[i].s();
                 if(jsonstring.length()!= 130 ){ 
-                    cout<<endl<<"jsonstring.length()!= 130 "<<jsonstring<<endl; 
+                    cout<<endl<<"jsonstring.length()!= 130 "<<jsonstring; 
                     continue;
                 }
                 peersDir.push_back(jsonstring);
@@ -562,7 +578,7 @@ bool matchMinBuildQueueFromNetwork(){
             peersDir.clear();
         }
         catch (const std::exception& e) {
-            cout<<endl<<"invalid response from: "<< "https://"+pairs+"/peersMatchMin Dir"<<endl;
+            cout<<endl<<"invalid response from: "<< "https://"+pairs+"/peersMatchMin Dir";
             continue;
         }
     }
@@ -732,7 +748,7 @@ string randomPeer(){
 
     string random_string = it->first;
     peerssyncblocklock.unlock();
-    cout << endl<< "random Peer: " <<uintToHex(random_index)<<" "+ random_string << endl;
+    cout << endl<< "random Peer: " <<uintToHex(random_index)<<" "+ random_string ;
     return random_string;
 }
 
@@ -751,7 +767,7 @@ string randomPeerIp(){
 
     string random_string = it->second.ip;
     peerssyncblocklock.unlock();
-    cout << endl<< "random Peer: " <<uintToHex(random_index)<<" "+ random_string << endl;
+    cout << endl<< "random Peer: " <<uintToHex(random_index)<<" "+ random_string;
     return random_string;
 }
 
@@ -802,13 +818,13 @@ string ShaOfBlNetwork(uint64_t BlNumbr){
             string str2 = x[1].s();
             
             if (str1.length() != 128 || !HexCheck(str1) || str1.length() != 128 || !HexCheck(str2) ){
-                cout << endl<< peerIp << ": Response Fail. Invalid data"<< endl;
+                cout << endl<< peerIp << ": Response Fail. Invalid data";
                 ++it;
                 continue;
             }
 
             if( !verifySignature( str1.substr(0,64)+Sx3 , str2 ,  loadPublicKey( it->first.substr(2 , 128))) ){
-                cout<<endl<< "Invalid firm from request : https://"+peerIp+"/blockdl"<<endl;
+                cout<<endl<< "Invalid firm from request : https://"+peerIp+"/blockdl";
                 ++it;
                 continue;
             }
@@ -817,7 +833,7 @@ string ShaOfBlNetwork(uint64_t BlNumbr){
             nodeShaReq.push_back(str1.substr(0,64));
 
         }catch (const std::exception& e) {
-            cout<<endl<<"ShaOfBlNetwork error response  "<<endl;
+            cout<<endl<<"ShaOfBlNetwork error response  ";
         }
         ++it;
     }
@@ -827,16 +843,14 @@ string ShaOfBlNetwork(uint64_t BlNumbr){
 
         string maxsha = MatchMaxString(nodeShaReq);
 
+        if( (hexToInt(maxsha.substr(0,8))*10000 )/ (Nodes2.size()-1) >= 5000 ){
 
-
-        if( ((hexToInt(maxsha.substr(0,8))*10000 )/ (Nodes2.size()-1) ) >= 5000 ){
-
-            cout<<endl<<" debug ShaOfBlNetwork  sha pass return"<<endl;
+            cout<<endl<<"  ShaOfBlNetwork OK result: "<<(hexToInt(maxsha.substr(0,8))*10000 )/ (Nodes2.size()-1) <<"%";
 
             return maxsha.substr(8, 64);
         }
 
-        cout<<endl<<" debug ShaOfBlNetwork  sha fail"<<endl;
+        cout<<endl<<"  ShaOfBlNetwork fail result: "<<(hexToInt(maxsha.substr(0,8))*10000 )/ (Nodes2.size()-1) <<"%";
 
     }
 
@@ -846,7 +860,7 @@ string ShaOfBlNetwork(uint64_t BlNumbr){
 
 string dlBl(uint64_t BlNumbr, string &NodePeerIP){
 
-    cout<<endl<<"dlbl flag "<<NodePeerIP<<endl;
+    cout<<endl<<"dlbl from "<<NodePeerIP;
 
     string random32hexstr = random32Hex();
     string  Sx1 = uint8ToHex(1);
@@ -864,14 +878,14 @@ string dlBl(uint64_t BlNumbr, string &NodePeerIP){
         string block = x[0].s();
         string signature = x[1].s();
         
-        cout << endl<< "dlbl debug bl download  "<<blockdl<<endl;
+        cout << endl<< "dlbl bl download  "<<blockdl<<endl;
 
         if (block.length() < 426 || !HexCheck(block) || signature.length() != 128 || !HexCheck(signature) ){
-            cout << endl<< NodePeerIP << ": Response Fail. Invalid data"<< endl;
+            cout << endl<< NodePeerIP << ": Response Fail. Invalid data";
             return "error downlaoding bl - wrong format";
         }
         if( !verifySignature( block.substr(0,block.length()-64)+Sx3 , signature ,  loadPublicKey( ipDir(NodePeerIP).substr(2 , 128))) ){
-            cout<<endl<< "Invalid firm from request : https://"+NodePeerIP+"/blockdl"<<endl;
+            cout<<endl<< "Invalid firm from request : https://"+NodePeerIP+"/blockdl";
             return "error downlaoding bl - invalid signature";
         }
 
@@ -879,7 +893,7 @@ string dlBl(uint64_t BlNumbr, string &NodePeerIP){
 
 
     }catch (const std::exception& e) {
-        cout<<endl<<"ShaOfBlNetwork error response : "<<blockdl<< endl;
+        cout<<endl<<"ShaOfBlNetwork error response : "<<blockdl;
     }
 
     return "error downlaoding bl";
@@ -899,7 +913,7 @@ string blnetworkIndex(uint8_t DataType, uint64_t BlNumbr){
 
         string result = ShaOfBlNetwork(BlNumbr);
 
-        cout<<endl<<" ShaOfBlNetwork "<<BlNumbr<<result<<endl;
+        cout<<endl<<" ShaOfBlNetwork "<<BlNumbr<<" : "<<result;
 
         if(result.length() == 64 && HexCheck(result) ){
             for ( int tries  = 5 ; tries > 0 ; tries-- ){
@@ -915,7 +929,7 @@ string blnetworkIndex(uint8_t DataType, uint64_t BlNumbr){
                 vector<unsigned char> vecdebughash =sha3_256v(vecdebug) ;
                 string bldlhashed = vectorstring (vecdebughash);
 
-                 cout<<"debug blnetworkIndex  bldlhashed "<< bldlhashed<<endl;
+                 cout<<"blnetworkIndex  bldlhashed "<< bldlhashed;
 
                 if (bldlhashed == result){
                     return blDl;
@@ -945,7 +959,7 @@ bool getblock( string lbi){
     //get download block from a Node from network
     string blockdl = blnetworkIndex(1 , stoull(lbi));
 
-    cout<<endl<<"debug getblock blockdl "<< blockdl<<endl;
+    cout<<endl<<"getblock blockdl "<< blockdl<<endl;
 
     if (blockdl.length() < 426){
         cout << endl<< "getblock error | content : "+blockdl<<endl;
@@ -957,7 +971,6 @@ bool getblock( string lbi){
 
     ofstream filew("blocks/dlsync/" + to_string( lastbl+1 ) , ios::binary | ios::out);
     if (!filew) { return "error writing bl dl"; }
-    // cout<<endl<<endl<< "tamano del byteArray " << byteArray.size() << endl;
     for (unsigned int i = 0; i < bl2.size(); i++){
         filew.seekp(i);
         filew.put(bl2[i]);
@@ -967,7 +980,6 @@ bool getblock( string lbi){
 
     filew.open("blocks/" + to_string( lastbl+1 ) , ios::binary | ios::out);
     if (!filew) { return "error writing bl dl"; }
-    // cout<<endl<<endl<< "tamano del byteArray " << byteArray.size() << endl;
     for (unsigned int i = 0; i < bl2.size(); i++){
         filew.seekp(i);
         filew.put(bl2[i]);
@@ -1067,7 +1079,7 @@ void matchMinBuildQueue(){
 
         string matchminresult = matchMin2( shavalue , collectdata);
         shavalue += matchminresult;
-        cout<<endl<<"matchMinBuildQueue buil N "<<i<<" ; "<<matchminresult<<endl;
+       // cout<<endl<<"matchMinBuildQueue buil N "<<i<<" ; "<<matchminresult;
         peersMatchMin.push_back(  matchminresult);
 
         for (uint e = 0; 0<collectdata.size(); e++){
@@ -1115,7 +1127,7 @@ void syncNetwork(){
             extern bool statusCheckRun;
 
             matchminRounInit = false;
-            cout << endl<< "Syncyng to last block" << endl;
+            cout << endl<< "Syncyng to last block";
 
             ClearOpBlks();
 
@@ -1201,15 +1213,15 @@ bool itsAlive(string Publicnode, string &ShaLBBBuffered){
             for (auto &s : Publicnode){s = toupper(s);}
 
             if (response.substr(0, 130) != Publicnode){
-                cout << "Req Status: bad_response: No de recibio la data esperada  response_data.substr(0, 130) " <<response.substr(0, 130)<< " Publicnode "<<Publicnode<< endl;
+                cout << "Req Status: bad_response: No de recibio la data esperada  response_data.substr(0, 130) " <<response.substr(0, 130)<< " Publicnode "<<Publicnode;
                 return false;
             }
             if (response.substr(132, 130) != publicDirNode){
-                cout << "Req Status: bad_response: No de recibio la data esperada  response_data.substr(132, 130) " <<response.substr(132, 130)<< " publicDirNode "<<publicDirNode<< endl;
+                cout << "Req Status: bad_response: No de recibio la data esperada  response_data.substr(132, 130) " <<response.substr(132, 130)<< " publicDirNode "<<publicDirNode;
                 return false;
             }
             if(stoi(response.substr(330, 10))>stoi(timing())+300 || stoi(response.substr(330,10))<stoi(timing())-300){
-                cout << "Req Status: bad_response: Timing cert error" << endl;
+                cout << "Req Status: bad_response: Timing cert error";
                 return false;
             }
 
@@ -1219,13 +1231,13 @@ bool itsAlive(string Publicnode, string &ShaLBBBuffered){
                 return true;
             }
             // verificar firma del response y status
-            cout<<endl<<"wrong signature alive connection"<<endl;
+            cout<<endl<<"wrong signature alive connection";
             return false;
         }
      
         
     } else{
-        cout<<endl<<"itsAlive debug !file.open() "<<Nodes2[Publicnode].ip<<endl;
+        cout<<endl<<"itsAlive debug !file.open() "<<Nodes2[Publicnode].ip;
          
     }
 
@@ -1279,16 +1291,14 @@ void reAlive(int timeout_ms){
                                 break;
                             }
 
-                            cout << "response from: https://"+ Nodeip + "/pair "<< stresponse << endl;
-                            cout<<endl<<" debug stresponse.lentght()  "<<stresponse.length()<<endl;
+                            //cout << "response from: https://"+ Nodeip + "/pair "<< stresponse << endl;
                             if(stresponse.length()!=338){
                                 break;
                             }
                             
                             if (!verifySignature(SHAstg(NodeDir)+"00"+SHAstg(publicDirNode)+"00"+LastBlSHA+"00"+localtimestg, stresponse.substr(210, 128), loadPublicKey(NodeDir.substr(2, 128)))){
-                                cout << "Invalid Firm ReAlive" << endl;
-                                cout <<SHAstg(NodeDir)+"00"+SHAstg(publicDirNode)+"00"+LastBlSHA+"00"+localtimestg<<endl;
-                                cout<<endl<<"stresponse "<<stresponse<<endl;
+                                cout << "Invalid Sign ReAlive " <<Nodeip;
+                                cout <<SHAstg(NodeDir)+"00"+SHAstg(publicDirNode)+"00"+LastBlSHA+"00"+localtimestg;
                                 break;
                             }
 
@@ -1306,7 +1316,7 @@ void reAlive(int timeout_ms){
                                 break;
                             }
                             
-                            cout<<endl<<"connection ReAlive:" <<Nodeip<<endl;
+                            //cout<<endl<<"connection ReAlive:" <<Nodeip<<endl;
                             ofstream filew("peer/" + Nodeip, ios::binary | ios::out);
                             if (!filew){ 
                                 cout << "error al abrir la Db de dirs"; 
@@ -1389,7 +1399,7 @@ vector<string> blkOpSync(int x1,int x2,string ShaLBBBuffered){
                 if(i+1==xsize){
 
                     if(jsonstring.length()!=128){result.clear(); result.push_back("01"); 
-                        cout<<endl<<"catch error debug jsonstring.length()!=128"<<endl;
+                        cout<<endl<<"catch error debug jsonstring.length()!=128";
                         return result;
                     }
                     uint syncqueuesize = result.size();
@@ -1408,7 +1418,7 @@ vector<string> blkOpSync(int x1,int x2,string ShaLBBBuffered){
 
                     if(str1.length()==64 && str2.length() == 128 ){
                         if(verifySignature(str1, str2 ,  loadPublicKey(matchMinQueue().substr(2 , 128))) ){
-                            cout<<endl<<"the node request to syncOp inst the matchmin"<<endl;
+                            cout<<endl<<"the node request to syncOp inst the matchmin";
                             result.clear(); result.push_back("02"); return result;
                         }
                     }
@@ -1423,9 +1433,9 @@ vector<string> blkOpSync(int x1,int x2,string ShaLBBBuffered){
 
         if( !verifySignature(Sx3+msg_firm, result[result.size()-1] ,  loadPublicKey(matchMinQueue().substr(2 , 128))) ){
 
-            cout<<endl<< "Invalid Firm check in opsync downloaded from matchmin "<<endl<<"msg_firm "<<msg_firm<<
+            cout<<endl<< "Invalid sign in opsync downloaded from matchmin "<<endl<<"msg_firm "<<msg_firm<<
             endl<<" result[result.size()-1] "<<result[result.size()-1] <<endl<<
-            matchMinQueue() <<endl;
+            matchMinQueue();
 
             result.clear(); result.push_back("01"); return result;
         }
@@ -1433,7 +1443,7 @@ vector<string> blkOpSync(int x1,int x2,string ShaLBBBuffered){
     }
     catch (const std::exception& e) {
         matchmingMistake();
-        cout<<endl<<"blkopsync error catch "<<endl;
+        cout<<endl<<"blkopsync error catch ";
         result.push_back("01");
         return result;
     }
@@ -1499,11 +1509,8 @@ bool saveNewNode(string PublicAddress){
 
 bool EraseNode(string PublicAddress){
 
-    cout<<endl<<"EraseNode debug init "<<endl;
-
     std::unique_lock<std::mutex> peerssyncblocklock(peerssyncblock);
 
-    cout<<endl<<"EraseNode debug init 2 "<<endl;
     auto it = Nodes.begin();
     while (it != Nodes.end()) {
 
@@ -1558,13 +1565,13 @@ string paireNode( string PublicAddress , string ip){
                 string stresponse = curlpost2("https://" + ip + "/pair", msg, timeout_ms);
 
                 if(stresponse.length()!= 210){
-                    cout<<endl<<"invalid response "<<stresponse<<endl;
+                    cout<<endl<<"invalid response "<<stresponse;
                 }
 
                 if (!verifySignature(SHAstg(PublicAddress)+"00"+SHAstg(publicDirNode)+"00"+LastBlSHA+"00"+localtimestg, stresponse.substr(210, 128), loadPublicKey(PublicAddress.substr(2, 128)))){
-                    cout << "invalid signature" << endl;
-                    cout << msg.substr(130,64)+"00"+msg.substr(0,64)+"00"+LastBlSHA+"00"+localtimestg+" signature "+stresponse.substr(340, 128)<<endl;
-                    cout<<endl<<"stresponse "<<stresponse<<endl;
+                    cout << "invalid signature" ;
+                    cout << msg.substr(130,64)+"00"+msg.substr(0,64)+"00"+LastBlSHA+"00"+localtimestg+" signature "+stresponse.substr(340, 128);
+                    cout<<endl<<"stresponse "<<stresponse;
                 }
 
                 vector<uint8_t> byteArray = stringToBytes(stresponse);
@@ -1633,7 +1640,7 @@ int ShaMinInit(){
     vector<int> timingroundNodesVector;
     string matchmax;
 
-    cout<<endl<<"ShaMinInit check network"<<endl;
+    cout<<endl<<"ShaMinInit check network";
 
     std::unique_lock<std::mutex> peerssyncblocklock(peerssyncblock);
     auto Nodes2 = Nodes;
@@ -1667,7 +1674,7 @@ int ShaMinInit(){
             // verificar firma del nodo
 
             if(!HexCheck(datastring)){
-                cout<<endl<<" ShaMinInit() :"<< it->first << " bad form response :"<<datastring<<endl;
+                cout<<endl<<" ShaMinInit() :"<< it->first << " bad form response :"<<datastring;
                 ++it;
                 continue;
             }
@@ -1677,12 +1684,12 @@ int ShaMinInit(){
                 continue;
             }
             if(!verifySignature(datastring+shalb, firmnode ,  loadPublicKey(it->first.substr(2 , 128)))){
-                cout<<endl<<"ShaMinInit() "+it->first+ " "+it->second.ip<<endl;
+                cout<<endl<<"ShaMinInit() "+it->first+ " "+it->second.ip;
                 ++it;
                 continue;   
             }
             if(stoi(TimingRoundNode)>stoi(timing())+15){
-                cout<<endl<<" ShaMinInit()invalid timing round data retrieved from node "<<it->first<< "  "<<TimingRoundNode<<endl;
+                cout<<endl<<" ShaMinInit()invalid timing round data retrieved from node "<<it->first<< "  "<<TimingRoundNode;
                 ++it;
                 continue;
             }
@@ -1690,7 +1697,7 @@ int ShaMinInit(){
             count.push_back(hexToUint(datastring));
 
         } catch (const std::exception& e) {
-            cout<<endl<<"invalid response from: "<< "https://"+it->second.ip+"/peersMatchMin ; "+response<<endl;
+            cout<<endl<<"invalid response from: "<< "https://"+it->second.ip+"/peersMatchMin ; "+response;
             ++it;
             continue;
         }   
@@ -1706,7 +1713,7 @@ int ShaMinInit(){
         return hexToInt(matchmax.substr(0,8));
 
     } else {
-        cout <<endl<<" ShaMinInit() fail verification entwork hexToInt(matchmax.substr(8 , 8))*10000)/Nodes2.size()>=5100 "<<matchmax<<endl;
+        cout <<endl<<" ShaMinInit() fail verification entwork hexToInt(matchmax.substr(8 , 8))*10000)/Nodes2.size()>=5100 "<<matchmax;
     }
 
     return 2;
@@ -1734,7 +1741,7 @@ bool MatchCheckDW(){
     while (it != Nodes2.end()) {
 
         if(it->second.ip=="localhost"){
-            //cout<<endl<<"debug matchcheckDW localhost sha "<<peersSha<<endl;
+            //cout<<endl<<"debug matchcheckDW localhost sha "<<peersSha;
             shaqueue.push_back(peersSha);
             ++it;
             continue;
@@ -1746,7 +1753,7 @@ bool MatchCheckDW(){
 
 
             if (response == "00"){
-                cout << endl<< "MatchCheckDW() "+it->second.ip+"/peersMatchMin SHA" << ": Response Fail. "<< endl;
+                cout << endl<< "MatchCheckDW() "+it->second.ip+"/peersMatchMin SHA" << ": Response Fail. ";
                 ++it;
                 continue;
             }
@@ -1759,7 +1766,7 @@ bool MatchCheckDW(){
             string firmnode = x[3].s();
 
             if(!verifySignature(datastring+shalb+timingblock, firmnode ,  loadPublicKey(it->first.substr(2 , 128)))){
-                cout<<endl<<" invalid sign from "<<it->first<< " response from: "<< "https://"+it->second.ip+"/peersMatchMin SHA"<<endl;
+                cout<<endl<<" invalid sign from "<<it->first<< " response from: "<< "https://"+it->second.ip+"/peersMatchMin SHA";
                 ++it;
                 continue; 
             }
@@ -1771,7 +1778,7 @@ bool MatchCheckDW(){
             }
         }     
         catch (const std::exception& e) {
-            cout<<endl<<"MatchCheckDW() invalid response from: "<< "https://"+it->second.ip+"/peersMatchMin SHA "+response<<endl;
+            cout<<endl<<"MatchCheckDW() invalid response from: "<< "https://"+it->second.ip+"/peersMatchMin SHA "+response;
             ++it;
             continue;
         }
@@ -1787,7 +1794,7 @@ bool MatchCheckDW(){
     }
 
     if( (hexToInt(maxsha.substr(0,8))*10000 )/Nodes2.size()<5100 ){
-        cout<<endl<<"fail MatchCheckDW maxsha < 51"<<endl;
+        cout<<endl<<"MatchCheckDW maxsha fail result: "<< (hexToInt(maxsha.substr(0,8))*10000 )/Nodes2.size() <<"%" ;
         return false;;
     }
     if(maxsha.substr(8,64) == peersSha){
@@ -1804,7 +1811,7 @@ void clearMatchminProposal(){
     if(shaMatchMinproposalReveled){
         shaMatchMinproposal= "";
     }
-    matchminbuilded = false;
+    matchminbuilt = false;
     shaMatchMinproposalReveled=false;
     matchminSortRound.clear();
     matchminProposalArrengelStr="";
@@ -1850,10 +1857,11 @@ bool NextMatchMinNetwork(){
             string jsonval = "{\"x1\": \"" + Sx1 + "\", \"x2\": \"" + Sx2 + "\", \"x3\": \"" + Sx3 + "\", \"x3\": \"" + Sx4 + "\"}"; 
 
             string response = curlpost2("https://"+it->second.ip + "/peersMatchMin", jsonval, 400);
-            cout << endl<< " NextMatchMinNetwork response "<<it->second.ip<< " "<< response<< endl;
+
+            // cout << endl<< " NextMatchMinNetwork response "<<it->second.ip<< " "<< response;
 
             if (response == "00") {
-                cerr << " response from " << it->second.ip<<" "<<response<<endl;
+                cerr << " response from " << it->second.ip<<" "<<response;
                 ++it;
                 continue;
             }
@@ -1862,12 +1870,12 @@ bool NextMatchMinNetwork(){
                 string blShaMin = x[0].s();
                 string SignRes = x[1].s();
                 if(blShaMin.length()!=64){
-                    cout<<endl<<"invalid blShaMin to ShaMinPush "<<it->first<<endl;
+                    cout<<endl<<"invalid blShaMin to ShaMinPush "<<it->first;
                     ++it;
                     continue;
                 }
                 if( !verifySignature( Sx1+Sx2+Sx3+blShaMin,  SignRes ,  loadPublicKey(it->first.substr(2,128))) ){
-                    cout<<endl<<"invalid signature to ShaMinPush "<<it->first<<endl;
+                    cout<<endl<<"invalid signature to ShaMinPush "<<it->first;
                     ++it;
                     continue;
                 }
@@ -1899,18 +1907,16 @@ string ArrangeStringOfProposals(){
     std::unique_lock<std::mutex> peersMatchMinBlockmtxlock(peersMatchMinBlockmtx);
     string arregle = "";
 
-    cout<<endl<<" debug ArrangeStringOfProposals";
-
     for(uint i = 0;i < peersMatchMin.size(); i++ ){
 
         auto iter = Nodes.find(peersMatchMin[i]);
         if (iter != Nodes.end()){
             if(iter->second.ip == "localhost"){
-                cout<<endl<<iter->second.ip<<" ; " <<SHAstg(shaMatchMinproposal)<<endl;
+                //cout<<endl<<iter->second.ip<<" ; " <<SHAstg(shaMatchMinproposal);
                 arregle += SHAstg(shaMatchMinproposal);
                 continue;
             }
-            cout<<endl<<iter->second.ip<<" ; " << iter->second.ShaMinProposal[lastbl]<<endl;
+            //cout<<endl<<iter->second.ip<<" ; " << iter->second.ShaMinProposal[lastbl];
             arregle += iter->second.ShaMinProposal[lastbl];
         }
     } 
@@ -1950,13 +1956,13 @@ uint8_t checkMatchMinStringListNetwork(string sortResult, string apiquery){
 
         string jsonval = "{\"x1\": \"" + Sx1 + "\", \"x2\": \"" + Sx2 + "\", \"x3\": \"" + Sx3  + "\"}"; 
         string response = curlpost2("https://"+it->second.ip+"/peersMatchMin", jsonval, timeout_ms);
-        cout << endl<< " checkMatchMinStringListNetwork response "<<it->second.ip<<" "<<apiquery<< " "<< response<< endl;
+        //cout << endl<< " checkMatchMinStringListNetwork response "<<it->second.ip<<" "<<apiquery<< " "<< response;
 
         try {
             auto x = crow::json::load(response);
 
             if (response == "00"){
-                cout << endl<< it->second.ip << ": Response Fail. "<< endl;
+                cout << endl<< it->second.ip << ": Response Fail. ";
                 ++it;
                 continue;
             }
@@ -1965,7 +1971,7 @@ uint8_t checkMatchMinStringListNetwork(string sortResult, string apiquery){
             string signature = x[1].s();
 
             if(!verifySignature(Sx1+Sx2+Sx3+ResponseQuery, signature ,  loadPublicKey(it->first.substr(2 ,128)))){
-                cout<<endl<<"invalid signature from "<<it->second.ip<< " response from: "<< "https://"+it->second.ip+"/peersMatchMin  "+apiquery<<response<<endl;
+                cout<<endl<<"invalid signature from "<<it->second.ip<< " response from: "<< "https://"+it->second.ip+"/peersMatchMin  "+apiquery+" : "<<response;
                 ++it;
                 continue; 
             }
@@ -1977,22 +1983,22 @@ uint8_t checkMatchMinStringListNetwork(string sortResult, string apiquery){
                 shaqueue.push_back(ResponseQuery);
             }
         }catch (const std::exception& e) {
-            cout<<endl<<"invalid response from: "<< "https://"+it->second.ip+"/peersMatchMin"<<endl;
+            cout<<endl<<"invalid response from: "<< "https://"+it->second.ip+"/peersMatchMin";
         }
         ++it;
     }
     
     string maxsha = MatchMaxString(shaqueue);
-    cout<<endl<<"checkMatchMinStringListNetwork maxsha "<<maxsha<<endl;
+    //cout<<endl<<"checkMatchMinStringListNetwork maxsha "<<maxsha<<endl;
     peerssyncblocklock.lock();
 
-    if (((matchminroundIsNotInitInt)*10000 )/Nodes.size()>=5000){
-        cout<<endl<<"checkMatchMinStringListNetwork matchminroundIsNotInitInt*10000 )/peersObj.size()>=5000"<<endl;
+    if ( ((matchminroundIsNotInitInt)*10000)/Nodes.size()>=5000 ){
+        cout<<endl<<"checkMatchMinStringListNetwork Ok Result : "<< (matchminroundIsNotInitInt*10000)/Nodes.size() <<"%";
         return 0;
     }
 
     if( (hexToInt(maxsha.substr(0,8))*10000 )/Nodes.size()<5100 ){
-        cout<<endl<<"fail checkMatchMinStringListNetwork maxsha < 51"<<endl;
+        cout<<endl<<"checkMatchMinStringListNetwork Fail Result : "<< (matchminroundIsNotInitInt*10000)/Nodes.size() <<"%";
         return 2;
     }
     if(maxsha.substr(8,64) == peersSha){
@@ -2035,9 +2041,12 @@ bool GetMatchMinNetwork(){
         string Sx4 = LocalSigner(Sx1+Sx2);
     
         string jsonval = "{\"x1\": \"" + Sx1 + "\", \"x2\": \"" + Sx2 + "\", \"x3\": \"" + Sx3 + "\", \"x3\": \"" + Sx4 + "\"}"; 
-        cout<<endl<<"req to https:// "<<it->second.ip+ "/peersMatchMin"<<endl;
+
+        //cout<<endl<<"req to https:// "<<it->second.ip+ "/peersMatchMin";
+
         string response = curlpost2("https://"+it->second.ip + "/peersMatchMin", jsonval, 400);
-        cout<<endl<<"res from https:// "<<it->second.ip+ "/peersMatchMin - getmatchmin "+response<<endl;
+
+        //cout<<endl<<"res from https:// "<<it->second.ip+ "/peersMatchMin - getmatchmin "+response;
 
         if (response == "00") {
             cerr << " ShaMinGet :" << it->second.ip<<" Fail response"<<endl;
@@ -2052,19 +2061,19 @@ bool GetMatchMinNetwork(){
             string SignRes = x[1].s();
 
             if( !verifySignature( Sx1+Sx2+Sx3+blShaMin,  SignRes ,  loadPublicKey(it->first.substr(2,128))) ){
-                cout<<endl<<"ShaMinGet : "+ it->first+" invalid signature response"<<endl;
+                cout<<endl<<"ShaMinGet : "+ it->first+" invalid signature response";
                 ++it;
                 continue;
             }
 
             if( SHAstg(blShaMin) == it->second.ShaMinProposal[lastbl] ){
 
-                cout<<endl<<" GetMatchMinNetwork() " <<it->first+" validate Sha. "+blShaMin<<endl;
+                cout<<endl<<" GetMatchMinNetwork() " <<it->first+" validate Sha. "+blShaMin;
                 matchminSortRound[it->first] = blShaMin;
 
             } else{
                 //add node to bad response
-                cout<<endl<<" GetMatchMinNetwork() " <<it->first+" Sha  Deny "+blShaMin<<endl;
+                cout<<endl<<" GetMatchMinNetwork() " <<it->first+" Sha  Deny "+blShaMin;
             }
 
             ++it;
@@ -2099,9 +2108,6 @@ void matchMinBuildQueue2(){
     std::unique_lock<std::mutex> peerssyncblocklock(peerssyncblock);
 
     string shavalue = matchminsorted;
-
-    cout<<endl<<" debug matchMinBuildQueue2 matchminsorted "<<shavalue<<endl;
-
     std::unique_lock<std::mutex> peersMatchMinBlockmtxlock(peersMatchMinBlockmtx);
     peersMatchMin.clear();
     vector<string>collectdata;
@@ -2139,18 +2145,16 @@ bool sortMatchMin(){
 
     shamatchinstep = 0;
 
-    cout<<endl<<"sortMatchMin init"<<endl;
-
     matchMinBuildQueue();
 
     //shamin push
     if(!NextMatchMinNetwork()){
-        cout<<endl<<"!NextMatchMinNetwork()"<<endl;
+        cout<<endl<<"NextMatchMinNetwork() init fail";
         return false;
     }
 
 
-    cout<<endl<<"sortMatchMin: pushMatchMin OK"<<endl;
+    //cout<<endl<<"sortMatchMin: pushMatchMin OK"<<endl;
 
     //arrange string from sha
     matchminProposalArrengelStr = SHAstg(ArrangeStringOfProposals());
@@ -2163,11 +2167,11 @@ bool sortMatchMin(){
             break;
         }
         if ( result == 2 ){
-            cout<<endl<<"sortMatchMin-SHAsort : string rejected by network"<<endl;
+            cout<<endl<<"sortMatchMin-SHAsort : string rejected by network";
             return false;                                                                                 
         }
         if( tries >3 ){
-            cout<<endl<<"sortMatchMin-SHAsort : Max attempts reached  "<<endl;
+            cout<<endl<<"sortMatchMin-SHAsort : Max attempts reached  ";
             return false;
         }
         std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -2176,8 +2180,8 @@ bool sortMatchMin(){
     shamatchinstep = 3;
     
     // check matchminbuilded true network
-    matchminbuilded = true;
-    cout<<endl<<"sortMatchMin SHAsort OK"<<endl;
+    matchminbuilt = true;
+    //cout<<endl<<"sortMatchMin SHAsort OK"<<endl;
 
     //get matchmin presha
     for (uint8_t tries=0; tries< 5; tries++ ){
@@ -2191,7 +2195,7 @@ bool sortMatchMin(){
             if((matchminSortRound.size()*10000)/Nodes.size() >= 5100){
                 break;
             }
-            cout<<endl<<"GetMatchMinNetwork "<<(matchminSortRound.size()*10000)/Nodes.size()<<endl;
+            cout<<endl<<"GetMatchMinNetwork fail result: "<<(matchminSortRound.size()*10000)/Nodes.size()<<"%";
             return false;
         }
         std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -2199,7 +2203,7 @@ bool sortMatchMin(){
 
         shamatchinstep = 4;
 
-    cout<<endl<<"GetMatchMinNetwork() OK "<<(matchminSortRound.size()*10000)/Nodes.size()<<endl;
+    cout<<endl<<"GetMatchMinNetwork() OK result: "<<(matchminSortRound.size()*10000)/Nodes.size()<<"%";
 
     matchminsorted = MatchMinStringList();
 
@@ -2227,7 +2231,7 @@ bool sortMatchMin(){
 
     shamatchinstep = 5;
 
-    cout<<endl<<"sortmatchMin()  "<<(matchminSortRound.size()*10000)/Nodes.size()<<endl;
+    //cout<<endl<<"sortmatchMin()  "<<(matchminSortRound.size()*10000)/Nodes.size()<<endl;
 
  
 
