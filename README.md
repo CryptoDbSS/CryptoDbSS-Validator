@@ -6,7 +6,7 @@
 
 ## Overview
 
-**CryptoDbSS** is a **blockchain software technology** written in **C++**, designed to be **fast, lightweight, and optimized**. It focuses on **security, scalability, and performance**, with a unique consensus mechanism called **Matchmin**. As a **comprehensive framework**, integrates software and protocols based on blockchain and cryptography,, serving as an **engine** for executing:
+**CryptoDbSS** is a **Blockchain Architecture Software Engineering** written in **C++**, designed to be **fast, lightweight, and optimized**. It focuses on **security, scalability, and performance**, with a unique consensus mechanism called **Matchmin**. As a **comprehensive framework**  integrates protocols with cryptography. Can be served as an **engine** for executing:
 
 - **Blockchains**: A decentralized and secure ledger for recording transactions.
 - **Decentralized Applications (DApps)**: Applications that run on a peer-to-peer network rather than a centralized server.
@@ -15,7 +15,6 @@
 
 The architecture of CryptoDbSS features **robust security algorithms**, **high execution performance**, and **scalability**, making it suitable for a wide range of use cases. By leveraging advanced cryptographic techniques and optimized data structures, it enhances **operational efficiency** and **trust** in decentralized systems.
 
----
 
 ## Key Features
 
@@ -46,7 +45,7 @@ The architecture of CryptoDbSS features **robust security algorithms**, **high e
 - Includes algorithms to check the **binary integrity** of the entire database.
 - Verifies the **sums of address values** in each transaction across the chain.
 
----
+
 
 ## **Setup and Usage**
 
@@ -114,7 +113,7 @@ The architecture of CryptoDbSS features **robust security algorithms**, **high e
     
   </br>
   
----
+
 
 # Get more Info And Updates
 
